@@ -84,12 +84,23 @@
   .content.three-tab { padding: 0; max-width: 100%; }
   .canvas-wrap { position: relative; width: 100%; height: calc(100vh - 122px); background: #000; overflow: hidden; }
   .canvas-wrap canvas { display: block; width: 100% !important; height: 100% !important; }
-  .scene-hint { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.45); font-size: 12px; pointer-events: none; white-space: nowrap; }
-  .countdown-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; color: #fff; pointer-events: none; z-index: 10; }
-  .countdown-overlay .big-num { font-size: 80px; font-weight: 800; line-height: 1; font-family: 'Courier New', monospace; text-shadow: 0 0 30px #ff88bb; }
-  .countdown-overlay .cd-unit { font-size: 20px; color: #ffaacc; margin-top: 6px; }
-  .countdown-overlay .cd-sub { font-size: 14px; color: #cc99bb; margin-top: 4px; }
-  .countdown-overlay .cd-date { margin-top: 20px; font-size: 15px; color: #ffbb66; }
+  .scene-hint { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.38); font-size: 11px; pointer-events: none; white-space: nowrap; letter-spacing: .03em; }
+  /* Countdown overlay */
+  .countdown-overlay { position: absolute; top: 42%; left: 50%; transform: translate(-50%,-50%); text-align: center; color: #fff; pointer-events: none; z-index: 10; }
+  .countdown-overlay .big-num { font-size: 96px; font-weight: 800; line-height: 1; font-family: 'Courier New', monospace; text-shadow: 0 0 40px #ff88bb, 0 0 80px #cc44aa; }
+  .countdown-overlay .cd-unit { font-size: 22px; color: #ffaacc; margin-top: 8px; font-weight: 600; }
+  .countdown-overlay .cd-sub { font-size: 14px; color: #cc99bb; margin-top: 6px; }
+  .countdown-overlay .cd-date { margin-top: 22px; font-size: 15px; color: #ffbb66; }
+  /* Week timeline dots */
+  .cd-timeline { display: flex; gap: 5px; margin-top: 18px; justify-content: center; }
+  .cd-dot { width: 10px; height: 10px; border-radius: 50%; background: #2a1a2a; border: 1px solid #553355; cursor: default; transition: all .3s; flex-shrink: 0; }
+  .cd-dot.past { background: #772255; border-color: #aa3366; }
+  .cd-dot.current { background: #ff88bb; border-color: #ff88bb; box-shadow: 0 0 10px #ff88bb; transform: scale(1.5); }
+  /* Scene tooltips */
+  .scene-tooltip { position: absolute; background: rgba(0,8,28,0.92); color: #cce4ff; padding: 8px 13px; border-radius: 7px; font-size: 12px; pointer-events: none; border: 1px solid #1a3355; z-index: 20; max-width: 220px; line-height: 1.5; }
+  .room-tooltip { position: absolute; background: rgba(20,12,6,0.94); color: #fff; padding: 10px 15px; border-radius: 8px; font-size: 13px; pointer-events: none; border: 1px solid rgba(255,220,150,0.25); z-index: 20; line-height: 1.5; }
+  /* Cuarto progress bar */
+  .room-progress { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); background: rgba(10,6,2,0.7); color: #ffddaa; padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; backdrop-filter: blur(4px); border: 1px solid rgba(255,200,100,0.2); }
 </style>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}
@@ -744,39 +755,44 @@
 
 <!-- ═══════════════════════ TAB MAPA ESTELAR ═══════════════════════ -->
 <div id="tab-estrellas" class="content three-tab">
-  <div class="canvas-wrap">
+  <div class="canvas-wrap" id="estrellas-wrap">
     <canvas id="canvas-estrellas"></canvas>
-    <div class="scene-hint">Arrastrá para girar · Constelación FLORO en dorado</div>
+    <div id="estrellas-tooltip" class="scene-tooltip" style="display:none"></div>
+    <div class="scene-hint">Pasá el mouse por las estrellas · Cada categoría es una constelación · FLORO brilla en dorado</div>
   </div>
 </div>
 
 <!-- ═══════════════════════ TAB GALAXIA ═══════════════════════ -->
 <div id="tab-galaxia" class="content three-tab">
-  <div class="canvas-wrap">
+  <div class="canvas-wrap" id="galaxia-wrap">
     <canvas id="canvas-galaxia"></canvas>
-    <div class="scene-hint">Semanas 30–39 en órbita · Cada planeta = una tarea</div>
+    <div id="galaxia-tooltip" class="scene-tooltip" style="display:none"></div>
+    <div class="scene-hint">Pasá el mouse sobre un planeta · Clic para ir a la tarea · Dorado = completado</div>
   </div>
 </div>
 
 <!-- ═══════════════════════ TAB CUARTO 3D ═══════════════════════ -->
 <div id="tab-cuarto" class="content three-tab">
-  <div class="canvas-wrap">
+  <div class="canvas-wrap" id="cuarto-wrap">
     <canvas id="canvas-cuarto"></canvas>
-    <div class="scene-hint">El cuarto de Floro · Arrastrá para explorar</div>
+    <div id="cuarto-tooltip" class="room-tooltip" style="display:none"></div>
+    <div id="cuarto-progress" class="room-progress">Cargando…</div>
+    <div class="scene-hint">Cada mueble aparece cuando tildás su item en Compras · Clic para ver estado</div>
   </div>
 </div>
 
 <!-- ═══════════════════════ TAB CUENTA REGRESIVA ═══════════════════════ -->
 <div id="tab-cuenta" class="content three-tab">
-  <div class="canvas-wrap">
+  <div class="canvas-wrap" id="cuenta-wrap">
     <canvas id="canvas-cuenta"></canvas>
     <div class="countdown-overlay">
       <div id="cd-days" class="big-num">–</div>
       <div id="cd-unit" class="cd-unit">días</div>
-      <div id="cd-sub" class="cd-sub">horas · minutos</div>
+      <div id="cd-sub" class="cd-sub"></div>
       <div class="cd-date">📅 13 de junio de 2026</div>
+      <div id="cd-timeline" class="cd-timeline"></div>
     </div>
-    <div class="scene-hint">Nebulosa de Floro · Cuenta regresiva al nacimiento</div>
+    <div class="scene-hint">Nebulosa de Floro · Los puntitos muestran cada semana · El rosa = semana actual</div>
   </div>
 </div>
 
@@ -871,8 +887,11 @@ refreshYa();
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+const DB = 'floro_';
 const STATE = {};
 let activeScene = null;
+
+function isDone(key) { return localStorage.getItem(DB + key) === '1'; }
 
 function stopActive() {
   if (activeScene && STATE[activeScene]?.raf) {
@@ -885,311 +904,460 @@ function resumeScene(name) {
   activeScene = name;
   const s = STATE[name];
   if (!s) return;
-  function loop() {
+  (function loop() {
     s.raf = requestAnimationFrame(loop);
     s.controls?.update();
     s.update?.();
     s.renderer.render(s.scene, s.camera);
-  }
-  loop();
+  })();
 }
 
 function makeRenderer(canvasId) {
   const canvas = document.getElementById(canvasId);
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   function resize() {
-    const w = canvas.clientWidth, h = canvas.clientHeight || canvas.parentElement.clientHeight;
+    const w = canvas.clientWidth || canvas.parentElement.clientWidth;
+    const h = canvas.clientHeight || canvas.parentElement.clientHeight;
+    if (!w || !h) return;
     renderer.setSize(w, h, false);
     const s = STATE[activeScene];
     if (s?.camera) { s.camera.aspect = w / h; s.camera.updateProjectionMatrix(); }
   }
   window.addEventListener('resize', resize);
-  setTimeout(resize, 0);
+  setTimeout(resize, 50);
   return renderer;
 }
 
-// ─── 🌌 MAPA ESTELAR ──────────────────────────────────────────────────
+// ── Wrap toggle() to update 3D scenes in real-time ─────────────────────
+const _origToggle = window.toggle;
+window.toggle = function(checkEl) {
+  _origToggle.call(this, checkEl);
+  const li = checkEl.closest('li');
+  if (!li) return;
+  const key = li.dataset.key;
+  const done = checkEl.classList.contains('done');
+  STATE.cuarto?.updateItem?.(key, done);
+  STATE.galaxia?.updatePlanet?.(key, done);
+  STATE.estrellas?.updateStar?.(key, done);
+};
+
+// ─── 🌌 MAPA ESTELAR ─────────────────────────────────────────────────────
+// Tasks grouped into named constellations
+const CONSTELLATIONS = [
+  { name: 'Cuarto de Floro', keys: ['sillon-lactancia','comoda-cambiador','cambiador-sebra','lampara-nursery','alfombra-cuarto','raskog-ikea','colchon-cuna','humidificador','tacho-panales','banera-stokke'] },
+  { name: 'Ropa de Floro',   keys: ['bodies-50','pijamas-50','gorritos-manoplas','calcetines-bebe','body-salida','muselinas','baberos-tela','capa-bano','saco-verano','mantas-finas','lavar-ropa'] },
+  { name: 'Salud y cuidado', keys: ['termometro-agua','termometro-oido','gel-suave','crema-hidratante','esponja-bebe','bepanthen','frida-nose','suero-gasas','lima-zoli','frida-ice'] },
+  { name: 'Para Luli',       keys: ['sujetadores-lactancia','braguitas-postparto','compresas-postparto','cojin-donut','zapatillas-hospital'] },
+  { name: 'Bolso hospital',  keys: ['panales-stock','waterwipes-stock','biberones','chupetes','panales-bolso','waterwipes-bolso','snacks-parto','cargador-auriculares','bolso-terminado'] },
+  { name: 'Logística',       keys: ['plan-parto-arrancar','asesora-ibclc','confirmar-feli','huevito-coche','ruta-hospital','huckleberry','repaso-nursery','bolso-cambiador','cargar-coche'] },
+];
+const CON_CENTERS = [
+  { th: 0.4,  ph: 1.1 },
+  { th: 1.9,  ph: 0.85 },
+  { th: 3.4,  ph: 1.25 },
+  { th: 4.9,  ph: 0.7 },
+  { th: 2.4,  ph: 0.5 },
+  { th: 5.7,  ph: 1.05 },
+];
+
 function initEstrellas() {
   const s = STATE.estrellas = {};
   s.renderer = makeRenderer('canvas-estrellas');
   s.scene = new THREE.Scene();
   s.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 2000);
   s.camera.position.set(0, 0, 0.1);
-
   s.controls = new OrbitControls(s.camera, s.renderer.domElement);
   s.controls.enableDamping = true;
-  s.controls.dampingFactor = 0.04;
+  s.controls.dampingFactor = 0.05;
   s.controls.enablePan = false;
   s.controls.enableZoom = false;
   s.controls.autoRotate = true;
-  s.controls.autoRotateSpeed = 0.25;
+  s.controls.autoRotateSpeed = 0.2;
 
-  // Field of stars
-  const N = 4000;
-  const geo = new THREE.BufferGeometry();
-  const pos = new Float32Array(N * 3);
+  // Background star field
+  const N = 3000;
+  const bg = new THREE.BufferGeometry();
+  const bp = new Float32Array(N * 3);
   for (let i = 0; i < N; i++) {
-    const th = Math.random() * Math.PI * 2;
-    const ph = Math.acos(2 * Math.random() - 1);
-    const r = 850 + Math.random() * 100;
-    pos[i*3]   = r * Math.sin(ph) * Math.cos(th);
-    pos[i*3+1] = r * Math.sin(ph) * Math.sin(th);
-    pos[i*3+2] = r * Math.cos(ph);
+    const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1), r = 850 + Math.random() * 100;
+    bp[i*3] = r*Math.sin(ph)*Math.cos(th); bp[i*3+1] = r*Math.sin(ph)*Math.sin(th); bp[i*3+2] = r*Math.cos(ph);
   }
-  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  s.scene.add(new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffffff, size: 2, sizeAttenuation: false })));
+  bg.setAttribute('position', new THREE.BufferAttribute(bp, 3));
+  s.scene.add(new THREE.Points(bg, new THREE.PointsMaterial({ color: 0xffffff, size: 1.5, sizeAttenuation: false, transparent: true, opacity: 0.55 })));
 
-  // Bright accent stars
-  const brightPos = new Float32Array(60 * 3);
-  for (let i = 0; i < 60; i++) {
-    const th = Math.random() * Math.PI * 2;
-    const ph = Math.acos(2 * Math.random() - 1);
-    const r = 860;
-    brightPos[i*3]   = r * Math.sin(ph) * Math.cos(th);
-    brightPos[i*3+1] = r * Math.sin(ph) * Math.sin(th);
-    brightPos[i*3+2] = r * Math.cos(ph);
+  // Nebula tint
+  const nb = new THREE.BufferGeometry();
+  const np = new Float32Array(800*3), nc = new Float32Array(800*3);
+  for (let i = 0; i < 800; i++) {
+    const th = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1), r = 825+Math.random()*35;
+    np[i*3]=r*Math.sin(ph)*Math.cos(th); np[i*3+1]=r*Math.sin(ph)*Math.sin(th); np[i*3+2]=r*Math.cos(ph);
+    nc[i*3]=0.2+Math.random()*0.25; nc[i*3+1]=0.05; nc[i*3+2]=0.4+Math.random()*0.4;
   }
-  const bGeo = new THREE.BufferGeometry();
-  bGeo.setAttribute('position', new THREE.BufferAttribute(brightPos, 3));
-  s.scene.add(new THREE.Points(bGeo, new THREE.PointsMaterial({ color: 0xaaddff, size: 4, sizeAttenuation: false })));
+  nb.setAttribute('position', new THREE.BufferAttribute(np, 3));
+  nb.setAttribute('color', new THREE.BufferAttribute(nc, 3));
+  s.scene.add(new THREE.Points(nb, new THREE.PointsMaterial({ size: 1.2, vertexColors: true, sizeAttenuation: false, transparent: true, opacity: 0.4 })));
 
-  // FLORO constellation — 6 stars in a rough F shape, golden
-  const floroRaw = [
-    [-50, 80, -800], [-20, 80, -800], [10, 80, -800],   // top bar of F
-    [-50, 50, -800], [-20, 50, -800],                    // middle bar
-    [-50, 10, -800],                                     // bottom
-  ];
-  const fPos = new Float32Array(floroRaw.flat());
-  const fGeo = new THREE.BufferGeometry();
-  fGeo.setAttribute('position', new THREE.BufferAttribute(fPos, 3));
-  s.scene.add(new THREE.Points(fGeo, new THREE.PointsMaterial({ color: 0xffd700, size: 7, sizeAttenuation: false })));
-
-  // Connect FLORO stars with lines
-  const lineIdx = [0,1, 1,2, 0,3, 3,4, 3,5];
-  const lPos = new Float32Array(lineIdx.length * 3);
-  lineIdx.forEach((vi, i) => {
-    lPos[i*3]   = floroRaw[vi][0];
-    lPos[i*3+1] = floroRaw[vi][1];
-    lPos[i*3+2] = floroRaw[vi][2];
+  // Constellation stars (one per task)
+  s.starMeshes = {};
+  s.allStarObjs = [];
+  CONSTELLATIONS.forEach((con, ci) => {
+    const center = CON_CENTERS[ci];
+    const positions = [];
+    con.keys.forEach((key, ki) => {
+      const dth = center.th + (ki % 4 - 1.5) * 0.18 + Math.sin(ki * 2.1) * 0.12;
+      const dph = center.ph + Math.floor(ki/4) * 0.18 - 0.15 + Math.cos(ki * 1.9) * 0.09;
+      const r = 840;
+      const x = r*Math.sin(dph)*Math.cos(dth), y = r*Math.sin(dph)*Math.sin(dth), z = r*Math.cos(dph);
+      const done = isDone(key);
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([x,y,z]), 3));
+      const mat = new THREE.PointsMaterial({ color: done ? 0xffd700 : 0x3a5577, size: done ? 6 : 3, sizeAttenuation: false });
+      const star = new THREE.Points(geo, mat);
+      star.userData = { key, conName: con.name };
+      s.scene.add(star);
+      s.starMeshes[key] = star;
+      s.allStarObjs.push(star);
+      positions.push([x,y,z]);
+    });
+    // Connect with lines
+    if (positions.length >= 2) {
+      const lp = [];
+      for (let i = 0; i < positions.length-1; i++) lp.push(...positions[i], ...positions[i+1]);
+      const lg = new THREE.BufferGeometry();
+      lg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(lp), 3));
+      s.scene.add(new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ color: 0x1a3366, transparent: true, opacity: 0.35 })));
+    }
   });
-  const lGeo = new THREE.BufferGeometry();
-  lGeo.setAttribute('position', new THREE.BufferAttribute(lPos, 3));
-  s.scene.add(new THREE.LineSegments(lGeo, new THREE.LineBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.5 })));
 
-  // Nebula cloud (colored points cluster)
-  const nbN = 1200;
-  const nbPos = new Float32Array(nbN * 3);
-  const nbCol = new Float32Array(nbN * 3);
-  for (let i = 0; i < nbN; i++) {
-    const th = Math.random() * Math.PI * 2;
-    const ph = Math.acos(2 * Math.random() - 1);
-    const r = 820 + Math.random() * 40;
-    nbPos[i*3]   = r * Math.sin(ph) * Math.cos(th);
-    nbPos[i*3+1] = r * Math.sin(ph) * Math.sin(th);
-    nbPos[i*3+2] = r * Math.cos(ph);
-    const t = Math.random();
-    nbCol[i*3] = 0.3 + t * 0.4; nbCol[i*3+1] = 0.1 + t * 0.2; nbCol[i*3+2] = 0.5 + t * 0.5;
-  }
-  const nbGeo = new THREE.BufferGeometry();
-  nbGeo.setAttribute('position', new THREE.BufferAttribute(nbPos, 3));
-  nbGeo.setAttribute('color', new THREE.BufferAttribute(nbCol, 3));
-  s.scene.add(new THREE.Points(nbGeo, new THREE.PointsMaterial({ size: 1.5, vertexColors: true, sizeAttenuation: false, transparent: true, opacity: 0.5 })));
+  // FLORO golden constellation
+  const fr = [[-50,80,-820],[-20,80,-820],[10,80,-820],[-50,52,-820],[-20,52,-820],[-50,15,-820]];
+  const fg = new THREE.BufferGeometry();
+  fg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(fr.flat()), 3));
+  s.floroStars = new THREE.Points(fg, new THREE.PointsMaterial({ color: 0xffd700, size: 7, sizeAttenuation: false }));
+  s.scene.add(s.floroStars);
+  const li = [0,1,1,2,0,3,3,4,3,5];
+  const lp2 = new Float32Array(li.length*3);
+  li.forEach((vi,i)=>{lp2[i*3]=fr[vi][0];lp2[i*3+1]=fr[vi][1];lp2[i*3+2]=fr[vi][2];});
+  const lg2 = new THREE.BufferGeometry();
+  lg2.setAttribute('position', new THREE.BufferAttribute(lp2, 3));
+  s.scene.add(new THREE.LineSegments(lg2, new THREE.LineBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.55 })));
 
-  s.update = () => {};
+  // Hover tooltip
+  const raycaster = new THREE.Raycaster();
+  raycaster.params.Points = { threshold: 7 };
+  const mouse = new THREE.Vector2();
+  const tooltip = document.getElementById('estrellas-tooltip');
+  s.renderer.domElement.addEventListener('mousemove', e => {
+    const rect = s.renderer.domElement.getBoundingClientRect();
+    mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
+    mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
+    raycaster.setFromCamera(mouse, s.camera);
+    const hits = raycaster.intersectObjects(s.allStarObjs);
+    if (hits.length > 0 && tooltip) {
+      const { key, conName } = hits[0].object.userData;
+      const done = isDone(key);
+      const liEl = document.querySelector(`.items li[data-key="${key}"]`);
+      const label = liEl?.querySelector('strong')?.textContent || key;
+      tooltip.innerHTML = `<span style="color:${done?'#ffd700':'#88aacc'}">${done?'★':'☆'}</span> <b>${label}</b><br><small style="opacity:.65">${conName}</small>`;
+      tooltip.style.left = (e.clientX-rect.left+14)+'px';
+      tooltip.style.top = (e.clientY-rect.top-52)+'px';
+      tooltip.style.display = 'block';
+    } else if (tooltip) tooltip.style.display = 'none';
+  });
+  s.renderer.domElement.addEventListener('mouseleave', () => { if(tooltip) tooltip.style.display='none'; });
+
+  s.clock = new THREE.Clock();
+  s.update = () => { s.floroStars.material.size = 7 + Math.sin(s.clock.getElapsedTime()*1.5)*1.2; };
+  s.updateStar = (key, done) => {
+    const st = s.starMeshes[key];
+    if (!st) return;
+    st.material.color.setHex(done ? 0xffd700 : 0x3a5577);
+    st.material.size = done ? 6 : 3;
+  };
   resumeScene('estrellas');
 }
 
-// ─── 🪐 GALAXIA DE TAREAS ──────────────────────────────────────────────
+// ─── 🪐 GALAXIA DE TAREAS ────────────────────────────────────────────────
+const WEEK_TASKS = [
+  { week:'S30', color:0x5577aa, tasks:[{key:'sillon-lactancia',label:'Sillón lactancia'},{key:'comoda-cambiador',label:'Cómoda Floro'},{key:'lampara-nursery',label:'Lámpara nursery'},{key:'alfombra-cuarto',label:'Alfombra cuarto'}] },
+  { week:'S31', color:0x7755aa, tasks:[{key:'banera-stokke',label:'Bañadera Stokke'},{key:'colchon-cuna',label:'Colchón cuna'},{key:'termometro-oido',label:'Termómetro oído'},{key:'asesora-ibclc',label:'Asesora lactancia'}] },
+  { week:'S32', color:0x558877, tasks:[{key:'bodies-50',label:'Bodies bebé ×6'},{key:'pijamas-50',label:'Pijamas ×6'},{key:'muselinas',label:'Muselinas ×6'},{key:'saco-verano',label:'Saco dormir'}] },
+  { week:'S33', color:0x557766, tasks:[{key:'lavar-ropa',label:'Lavar ropa Floro'},{key:'gel-suave',label:'Gel suave'},{key:'bepanthen',label:'Bepanthen'},{key:'frida-nose',label:'NoseFrida'}] },
+  { week:'S34', color:0x886644, tasks:[{key:'panales-stock',label:'Stock pañales'},{key:'waterwipes-stock',label:'WaterWipes stock'},{key:'humidificador',label:'Humidificador'},{key:'cesta-organizador',label:'Cesta cambiador'}] },
+  { week:'S35', color:0x997744, tasks:[{key:'sujetadores-lactancia',label:'Sujetadores Luli'},{key:'braguitas-postparto',label:'Braguitas postparto'},{key:'compresas-postparto',label:'Compresas'},{key:'cojin-donut',label:'Cojín donut'}] },
+  { week:'S36', color:0xaa6633, tasks:[{key:'biberones',label:'Biberones'},{key:'chupetes',label:'Chupetes'},{key:'bolso-cambiador',label:'Bolso cambiador'},{key:'tacho-panales',label:'Tacho pañales'}] },
+  { week:'S37', color:0xbb5522, tasks:[{key:'snacks-parto',label:'Snacks parto'},{key:'cargador-auriculares',label:'Cargadores'},{key:'zapatillas-hospital',label:'Zapatillas Luli'},{key:'panales-bolso',label:'Pañales bolso'}] },
+  { week:'S38', color:0xcc4411, tasks:[{key:'bolso-terminado',label:'Bolso hospital ✓'},{key:'huevito-coche',label:'Huevito Maxi Cosi'},{key:'ruta-hospital',label:'Ruta al hospital'},{key:'huckleberry',label:'App Huckleberry'}] },
+  { week:'S39+',color:0xff4400, tasks:[{key:'repaso-nursery',label:'Repaso nursery'},{key:'cargar-coche',label:'Cargar el coche'},{key:'descanso',label:'Descansar 🙏'},{key:'disfrutar',label:'❤️ Disfrutar'}] },
+];
+
 function initGalaxia() {
   const s = STATE.galaxia = {};
   s.renderer = makeRenderer('canvas-galaxia');
   s.scene = new THREE.Scene();
   s.scene.background = new THREE.Color(0x000814);
   s.camera = new THREE.PerspectiveCamera(55, 1, 0.1, 1000);
-  s.camera.position.set(0, 50, 100);
-
+  s.camera.position.set(0, 55, 105);
   s.controls = new OrbitControls(s.camera, s.renderer.domElement);
-  s.controls.enableDamping = true;
-  s.controls.dampingFactor = 0.05;
-  s.controls.autoRotate = true;
-  s.controls.autoRotateSpeed = 0.3;
-  s.controls.maxPolarAngle = Math.PI * 0.75;
-  s.controls.target.set(0, 0, 0);
+  s.controls.enableDamping = true; s.controls.dampingFactor = 0.05;
+  s.controls.autoRotate = true; s.controls.autoRotateSpeed = 0.28;
+  s.controls.maxPolarAngle = Math.PI*0.72;
 
-  // Stars backdrop
-  const sgeo = new THREE.BufferGeometry();
-  const spos = new Float32Array(1500 * 3);
-  for (let i = 0; i < 1500; i++) {
-    spos[i*3] = (Math.random()-0.5)*800;
-    spos[i*3+1] = (Math.random()-0.5)*800;
-    spos[i*3+2] = (Math.random()-0.5)*800;
-  }
-  sgeo.setAttribute('position', new THREE.BufferAttribute(spos, 3));
-  s.scene.add(new THREE.Points(sgeo, new THREE.PointsMaterial({ color: 0xffffff, size: 1, sizeAttenuation: false })));
+  // Star backdrop
+  const sg = new THREE.BufferGeometry(), sp = new Float32Array(1500*3);
+  for (let i=0;i<1500;i++){sp[i*3]=(Math.random()-.5)*700;sp[i*3+1]=(Math.random()-.5)*700;sp[i*3+2]=(Math.random()-.5)*700;}
+  sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
+  s.scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color:0xffffff,size:1,sizeAttenuation:false})));
 
-  // Central sun
-  const sun = new THREE.Mesh(new THREE.SphereGeometry(5, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffcc33 }));
-  s.scene.add(sun);
-  // Glow
-  const glow = new THREE.Mesh(new THREE.SphereGeometry(7.5, 32, 32), new THREE.MeshBasicMaterial({ color: 0xff8800, transparent: true, opacity: 0.18 }));
-  s.scene.add(glow);
+  // Sun
+  s.sun = new THREE.Mesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshBasicMaterial({color:0xffcc22}));
+  s.scene.add(s.sun);
+  s.scene.add(new THREE.Mesh(new THREE.SphereGeometry(7.5,16,16), new THREE.MeshBasicMaterial({color:0xff8800,transparent:true,opacity:0.15})));
+  s.scene.add(new THREE.Mesh(new THREE.SphereGeometry(10,16,16), new THREE.MeshBasicMaterial({color:0xff6600,transparent:true,opacity:0.06})));
 
-  // Orbit rings + planets (weeks 30-39)
-  const weeks = ['S30','S31','S32','S33','S34','S35','S36','S37','S38','S39'];
-  const radii = [14,19,24,29,34,39,44,49,54,59];
-  const planetCounts = [3,4,3,4,3,4,3,4,3,3]; // tasks per week
-  s.planets = [];
-
-  weeks.forEach((wk, i) => {
-    const r = radii[i];
-    // Orbit ring
-    const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(r, 0.15, 8, 100),
-      new THREE.MeshBasicMaterial({ color: 0x1a3366, transparent: true, opacity: 0.7 })
-    );
-    ring.rotation.x = Math.PI / 2;
+  // Rings + planets
+  const radii = [14,19,24,29,34,39,44,49,54,60];
+  s.planetMeshes = {};
+  s.planetData = [];
+  WEEK_TASKS.forEach((wk, wi) => {
+    const r = radii[wi];
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(r,0.12,6,100), new THREE.MeshBasicMaterial({color:wk.color,transparent:true,opacity:0.5}));
+    ring.rotation.x = Math.PI/2;
     s.scene.add(ring);
-
-    // Planets
-    const count = planetCounts[i];
-    for (let j = 0; j < count; j++) {
-      const angle = (j / count) * Math.PI * 2;
-      const pGeo = new THREE.SphereGeometry(1.0, 12, 12);
-      const isDone = false;
-      const pMat = new THREE.MeshBasicMaterial({ color: isDone ? 0xffd700 : 0x2255aa });
-      const planet = new THREE.Mesh(pGeo, pMat);
-      planet.userData = { r, speed: 0.12 + i * 0.008 + j * 0.015, angle };
-      s.planets.push(planet);
-      s.scene.add(planet);
-
-      // Small moon on a few planets
-      if (j === 0 && i % 3 === 0) {
-        const moon = new THREE.Mesh(new THREE.SphereGeometry(0.35, 8, 8), new THREE.MeshBasicMaterial({ color: 0x88aadd }));
-        moon.userData.isMoon = true;
-        moon.userData.parent = planet;
-        moon.userData.moonAngle = 0;
-        s.planets.push(moon);
-        s.scene.add(moon);
+    wk.tasks.forEach((task, ti) => {
+      const angle = (ti/wk.tasks.length)*Math.PI*2;
+      const done = isDone(task.key);
+      const mesh = new THREE.Mesh(new THREE.SphereGeometry(1.1,16,16), new THREE.MeshBasicMaterial({color: done ? 0xffd700 : wk.color}));
+      mesh.position.set(Math.cos(angle)*r, 0, Math.sin(angle)*r);
+      mesh.userData = { key:task.key, label:task.label, r, speed:0.1+wi*0.006+ti*0.012, angle, week:wk.week };
+      s.scene.add(mesh);
+      s.planetMeshes[task.key] = mesh;
+      s.planetData.push(mesh);
+      if (done) {
+        mesh.add(new THREE.Mesh(new THREE.SphereGeometry(1.8,12,12), new THREE.MeshBasicMaterial({color:0xffd700,transparent:true,opacity:0.2})));
       }
+    });
+  });
+
+  // Raycaster — hover + click
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  const tooltip = document.getElementById('galaxia-tooltip');
+  function getHit(e) {
+    const rect = s.renderer.domElement.getBoundingClientRect();
+    mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
+    mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
+    raycaster.setFromCamera(mouse, s.camera);
+    return raycaster.intersectObjects(s.planetData);
+  }
+  s.renderer.domElement.addEventListener('mousemove', e => {
+    const hits = getHit(e);
+    if (hits.length > 0 && tooltip) {
+      const d = hits[0].object.userData;
+      const done = isDone(d.key);
+      tooltip.innerHTML = `<b>${d.label}</b> <span style="color:${done?'#ffd700':'#667799'}">${done?'✓':'○'}</span><br><small style="opacity:.6">${d.week} · clic para ver en lista</small>`;
+      const rect = s.renderer.domElement.getBoundingClientRect();
+      tooltip.style.left = (e.clientX-rect.left+14)+'px';
+      tooltip.style.top  = (e.clientY-rect.top-52)+'px';
+      tooltip.style.display = 'block';
+      s.renderer.domElement.style.cursor = 'pointer';
+    } else {
+      if(tooltip) tooltip.style.display='none';
+      s.renderer.domElement.style.cursor='';
     }
   });
+  s.renderer.domElement.addEventListener('click', e => {
+    const hits = getHit(e);
+    if (hits.length > 0) {
+      const key = hits[0].object.userData.key;
+      const tabEl = document.querySelector('.tab');
+      window.switchTab('compras', tabEl);
+      setTimeout(() => {
+        const liEl = document.querySelector(`.items li[data-key="${key}"]`);
+        if (liEl) liEl.scrollIntoView({behavior:'smooth',block:'center'});
+      }, 120);
+    }
+  });
+  s.renderer.domElement.addEventListener('mouseleave', () => { if(tooltip) tooltip.style.display='none'; });
 
   s.clock = new THREE.Clock();
   s.update = () => {
     const t = s.clock.getElapsedTime();
-    s.planets.forEach(p => {
-      if (p.userData.isMoon) {
-        const par = p.userData.parent;
-        p.userData.moonAngle += 0.03;
-        p.position.set(par.position.x + Math.cos(p.userData.moonAngle) * 2.2, 0, par.position.z + Math.sin(p.userData.moonAngle) * 2.2);
-      } else {
-        const a = p.userData.angle + t * p.userData.speed * 0.25;
-        p.position.set(Math.cos(a) * p.userData.r, 0, Math.sin(a) * p.userData.r);
-      }
+    s.planetData.forEach(m => {
+      const a = m.userData.angle + t*m.userData.speed*0.22;
+      m.position.set(Math.cos(a)*m.userData.r, 0, Math.sin(a)*m.userData.r);
     });
-    // Sun pulse
-    const pulse = 1 + Math.sin(t * 2) * 0.04;
-    sun.scale.setScalar(pulse);
-    glow.scale.setScalar(pulse);
+    const p = 1+Math.sin(t*2.1)*0.05;
+    s.sun.scale.setScalar(p);
+  };
+  s.updatePlanet = (key, done) => {
+    const mesh = s.planetMeshes[key];
+    if (!mesh) return;
+    const wk = WEEK_TASKS.find(w=>w.tasks.some(t=>t.key===key));
+    mesh.material.color.setHex(done ? 0xffd700 : (wk?.color||0x5577aa));
+    while(mesh.children.length) mesh.remove(mesh.children[0]);
+    if (done) mesh.add(new THREE.Mesh(new THREE.SphereGeometry(1.8,12,12),new THREE.MeshBasicMaterial({color:0xffd700,transparent:true,opacity:0.2})));
   };
   resumeScene('galaxia');
 }
 
 // ─── 🛏️ CUARTO 3D ──────────────────────────────────────────────────────
+const FURNITURE = [
+  { key:'colchon-cuna',     label:'Cuna colecho',        emoji:'🛏️', color:0xd4a870, pos:[-5,0,-5], w:3.5,  h:1.4,  d:2.2 },
+  { key:'sillon-lactancia', label:'Sillón de lactancia', emoji:'🪑', color:0xb8896a, pos:[6,0,4],   w:1.9,  h:2.8,  d:1.9 },
+  { key:'comoda-cambiador', label:'Cómoda de Floro',     emoji:'🗄️',color:0xa07040, pos:[5,0,-6],  w:2.8,  h:3.2,  d:1.4 },
+  { key:'cambiador-sebra',  label:'Cambiador Sebra',     emoji:'✋', color:0xddc8a0, pos:[5,3.4,-6],w:2.8,  h:0.25, d:1.4 },
+  { key:'alfombra-cuarto',  label:'Alfombra',            emoji:'🟥', color:0xe07060, pos:[0,0.02,0],w:9,    h:0.08, d:7   },
+  { key:'lampara-nursery',  label:'Lámpara nursery',     emoji:'💡', color:0xffd040, pos:[0,6.8,0], w:1.5,  h:0.45, d:1.5 },
+  { key:'raskog-ikea',      label:'Carrito IKEA Råskog', emoji:'🛒', color:0x889aaa, pos:[7,0,-2],  w:1.1,  h:2.2,  d:0.9 },
+  { key:'humidificador',    label:'Humidificador',       emoji:'💨', color:0xaaccee, pos:[-3,0,3],  w:0.9,  h:1.8,  d:0.9 },
+  { key:'tacho-panales',    label:'Tacho de pañales',    emoji:'🗑️',color:0x99aa99, pos:[2.5,0,-7],w:0.9,  h:2.0,  d:0.9 },
+  { key:'banera-stokke',    label:'Bañadera Stokke',     emoji:'🛁', color:0x99bbcc, pos:[-6,0,3],  w:2.6,  h:1.1,  d:1.5 },
+];
+
 function initCuarto() {
   const s = STATE.cuarto = {};
   s.renderer = makeRenderer('canvas-cuarto');
   s.renderer.shadowMap.enabled = true;
   s.scene = new THREE.Scene();
   s.scene.background = new THREE.Color(0xfff6ee);
-  s.scene.fog = new THREE.Fog(0xfff6ee, 25, 80);
-  s.camera = new THREE.PerspectiveCamera(52, 1, 0.1, 200);
-  s.camera.position.set(12, 9, 15);
-
+  s.scene.fog = new THREE.Fog(0xfff6ee, 30, 80);
+  s.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
+  s.camera.position.set(14, 10, 16);
   s.controls = new OrbitControls(s.camera, s.renderer.domElement);
   s.controls.enableDamping = true;
   s.controls.target.set(0, 2, 0);
-  s.controls.maxPolarAngle = Math.PI * 0.55;
-  s.controls.minDistance = 8;
-  s.controls.maxDistance = 35;
+  s.controls.maxPolarAngle = Math.PI*0.5;
+  s.controls.minDistance = 10; s.controls.maxDistance = 38;
 
   // Lights
   s.scene.add(new THREE.AmbientLight(0xfff0e0, 0.75));
   const sun = new THREE.DirectionalLight(0xffffff, 0.8);
-  sun.position.set(10, 20, 10);
-  sun.castShadow = true;
+  sun.position.set(10, 20, 10); sun.castShadow = true;
   s.scene.add(sun);
-  // Warm fill
-  const fill = new THREE.PointLight(0xff9944, 0.5, 30);
-  fill.position.set(-5, 6, 5);
-  s.scene.add(fill);
+  s.fill = new THREE.PointLight(0xff9944, 0.4, 30);
+  s.fill.position.set(-5, 6, 5);
+  s.scene.add(s.fill);
 
   // Floor
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(22, 22), new THREE.MeshLambertMaterial({ color: 0xdec89a }));
-  floor.rotation.x = -Math.PI / 2;
-  floor.receiveShadow = true;
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(22,22), new THREE.MeshLambertMaterial({color:0xdec89a}));
+  floor.rotation.x = -Math.PI/2; floor.receiveShadow = true;
   s.scene.add(floor);
 
-  // Room walls (box interior)
-  const wallMat = new THREE.MeshLambertMaterial({ color: 0xfce8d8, side: THREE.BackSide });
-  const room = new THREE.Mesh(new THREE.BoxGeometry(22, 14, 22), wallMat);
-  room.position.y = 7;
-  s.scene.add(room);
+  // Walls
+  const wallBox = new THREE.Mesh(new THREE.BoxGeometry(22,14,22), new THREE.MeshLambertMaterial({color:0xfce8d8, side:THREE.BackSide}));
+  wallBox.position.y = 7;
+  s.scene.add(wallBox);
 
-  // Window (glowing rectangle on wall)
-  const win = new THREE.Mesh(new THREE.PlaneGeometry(3.5, 4), new THREE.MeshBasicMaterial({ color: 0xffffcc, transparent: true, opacity: 0.55 }));
-  win.position.set(-10.95, 6, 0);
-  win.rotation.y = Math.PI / 2;
+  // Window glow
+  const win = new THREE.Mesh(new THREE.PlaneGeometry(3.5,4), new THREE.MeshBasicMaterial({color:0xffffcc,transparent:true,opacity:0.55}));
+  win.position.set(-10.95,6,0); win.rotation.y = Math.PI/2;
   s.scene.add(win);
 
-  // Rug
-  const rug = new THREE.Mesh(new THREE.PlaneGeometry(8, 6), new THREE.MeshLambertMaterial({ color: 0xe8a070 }));
-  rug.rotation.x = -Math.PI / 2;
-  rug.position.y = 0.01;
-  s.scene.add(rug);
+  // Lamp cord
+  const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,3,6), new THREE.MeshLambertMaterial({color:0x888888}));
+  cord.position.set(0, 8.5, 0);
+  s.scene.add(cord);
 
-  // Furniture definitions
-  const items = [
-    { color: 0xc8a87a, pos: [-5, 0, -5], w: 3.2, h: 1.4, d: 2.2, delay: 400 },   // Cuna
-    { color: 0xa07850, pos: [4.5, 0, -6], w: 2.5, h: 3, d: 1.5, delay: 900 },    // Cambiador
-    { color: 0x7a5c2e, pos: [-8, 0, 2], w: 2, h: 6, d: 1.5, delay: 1400 },       // Armario
-    { color: 0xb8866a, pos: [5, 0, 3.5], w: 1.8, h: 2.2, d: 1.8, delay: 1900 },  // Mecedora
-    { color: 0xd4a040, pos: [0, 0, -8], w: 0.4, h: 4.5, d: 0.4, delay: 2400 },   // Lámpara
-    { color: 0xcc8844, pos: [-3, 0, 4], w: 2.5, h: 1.5, d: 1.2, delay: 2900 },   // Cajones
-  ];
-
-  s.meshes = items.map(f => {
-    const mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(f.w, f.h, f.d),
-      new THREE.MeshLambertMaterial({ color: f.color })
-    );
+  // Furniture meshes (start invisible unless already done)
+  s.meshes = {};
+  FURNITURE.forEach(f => {
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(f.w, f.h, f.d), new THREE.MeshLambertMaterial({color:f.color}));
     mesh.castShadow = true;
-    mesh.userData.targetY = f.h / 2;
-    mesh.userData.targetScale = 1;
-    mesh.scale.setScalar(0.001);
-    mesh.position.set(f.pos[0], f.h / 2, f.pos[2]);
+    mesh.position.set(f.pos[0], f.h/2, f.pos[2]);
+    const alreadyDone = isDone(f.key);
+    mesh.scale.setScalar(alreadyDone ? 1 : 0.001);
+    mesh.userData.furniture = f;
+    mesh.userData.targetScale = alreadyDone ? 1 : 0.001;
     s.scene.add(mesh);
-    setTimeout(() => { mesh.userData.growing = true; }, f.delay);
-    return mesh;
+    s.meshes[f.key] = mesh;
   });
 
+  // Raycaster — click shows tooltip, hover shows cursor
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  const tooltip = document.getElementById('cuarto-tooltip');
+  function visibleMeshes() { return Object.values(s.meshes).filter(m => m.scale.x > 0.5); }
+  function getHit(e) {
+    const rect = s.renderer.domElement.getBoundingClientRect();
+    mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
+    mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
+    raycaster.setFromCamera(mouse, s.camera);
+    return raycaster.intersectObjects(visibleMeshes());
+  }
+  s.renderer.domElement.addEventListener('mousemove', e => {
+    s.renderer.domElement.style.cursor = getHit(e).length>0 ? 'pointer' : '';
+  });
+  s.renderer.domElement.addEventListener('click', e => {
+    const hits = getHit(e);
+    if (hits.length > 0 && tooltip) {
+      const f = hits[0].object.userData.furniture;
+      const done = isDone(f.key);
+      tooltip.innerHTML = `${f.emoji} <b>${f.label}</b><br><span style="color:${done?'#88ee88':'#ffaa44'}">${done?'✓ En el cuarto de Floro':'⏳ Todavía pendiente'}</span>`;
+      const wr = document.getElementById('cuarto-wrap').getBoundingClientRect();
+      let tx = e.clientX-wr.left+14, ty = e.clientY-wr.top-60;
+      if (tx+180 > wr.width) tx = e.clientX-wr.left-194;
+      tooltip.style.left = tx+'px'; tooltip.style.top = ty+'px';
+      tooltip.style.display = 'block';
+      // Flash mesh
+      const mat = hits[0].object.material;
+      mat.emissive = new THREE.Color(0x333333);
+      setTimeout(() => { mat.emissive.setHex(0); }, 600);
+      setTimeout(() => { tooltip.style.display='none'; }, 2800);
+    } else if (tooltip) {
+      tooltip.style.display = 'none';
+    }
+  });
+
+  updateCuartoProgress();
+
+  s.clock = new THREE.Clock();
   s.update = () => {
-    s.meshes.forEach(m => {
-      if (!m.userData.growing) return;
-      const cs = m.scale.x;
-      if (cs < 0.999) {
-        const ns = cs + (1 - cs) * 0.07;
-        m.scale.setScalar(ns);
-      } else {
-        m.scale.setScalar(1);
-      }
+    const t = s.clock.getElapsedTime();
+    Object.values(s.meshes).forEach(m => {
+      const ts = m.userData.targetScale, cs = m.scale.x;
+      if (Math.abs(cs-ts) > 0.002) m.scale.setScalar(cs+(ts-cs)*0.08);
     });
+    s.fill.intensity = 0.4+Math.sin(t*0.7)*0.06;
+  };
+  s.updateItem = (key, done) => {
+    const mesh = s.meshes[key];
+    if (!mesh) return;
+    mesh.userData.targetScale = done ? 1 : 0.001;
+    updateCuartoProgress();
   };
   resumeScene('cuarto');
 }
 
+function updateCuartoProgress() {
+  const keys = FURNITURE.map(f=>f.key);
+  const done = keys.filter(k=>isDone(k)).length;
+  const pct = Math.round(done/keys.length*100);
+  const el = document.getElementById('cuarto-progress');
+  if (el) el.textContent = done===keys.length ? `🎉 ¡Cuarto de Floro completo!` : `${done} / ${keys.length} muebles del cuarto · ${pct}%`;
+}
+
 // ─── ⏳ CUENTA REGRESIVA ────────────────────────────────────────────────
+const WEEKS_CD = [
+  {label:'S30',date:'2026-04-04',desc:'Cuarto y muebles'},
+  {label:'S31',date:'2026-04-11',desc:'Baño y sueño'},
+  {label:'S32',date:'2026-04-18',desc:'Ropa de Floro'},
+  {label:'S33',date:'2026-04-25',desc:'Lavado y prep'},
+  {label:'S34',date:'2026-05-02',desc:'Higiene'},
+  {label:'S35',date:'2026-05-09',desc:'Ropa de Luli'},
+  {label:'S36',date:'2026-05-16',desc:'Alimentación'},
+  {label:'S37',date:'2026-05-23',desc:'Bolso hospital'},
+  {label:'S38',date:'2026-05-30',desc:'Bolso listo'},
+  {label:'S39+',date:'2026-06-06',desc:'Última semana'},
+  {label:'🍼',date:'2026-06-13',desc:'¡Floro!'},
+];
+function getCurrentWeekIdx() {
+  const now = new Date();
+  for (let i=WEEKS_CD.length-1;i>=0;i--) { if(now>=new Date(WEEKS_CD[i].date)) return i; }
+  return 0;
+}
+
 function initCuenta() {
   const s = STATE.cuenta = {};
   s.renderer = makeRenderer('canvas-cuenta');
@@ -1197,93 +1365,73 @@ function initCuenta() {
   s.scene.background = new THREE.Color(0x020008);
   s.camera = new THREE.PerspectiveCamera(70, 1, 0.1, 1000);
   s.camera.position.z = 35;
-
   s.controls = new OrbitControls(s.camera, s.renderer.domElement);
-  s.controls.enableDamping = true;
-  s.controls.enableZoom = false;
-  s.controls.autoRotate = true;
-  s.controls.autoRotateSpeed = 0.2;
+  s.controls.enableDamping = true; s.controls.enableZoom = false;
+  s.controls.autoRotate = true; s.controls.autoRotateSpeed = 0.2;
 
-  // Background stars
-  const sgeo = new THREE.BufferGeometry();
-  const sp = new Float32Array(2000 * 3);
-  for (let i = 0; i < 2000; i++) {
-    sp[i*3] = (Math.random()-0.5)*500; sp[i*3+1] = (Math.random()-0.5)*500; sp[i*3+2] = (Math.random()-0.5)*500;
-  }
-  sgeo.setAttribute('position', new THREE.BufferAttribute(sp, 3));
-  s.scene.add(new THREE.Points(sgeo, new THREE.PointsMaterial({ color: 0xffffff, size: 1, sizeAttenuation: false })));
+  // Stars
+  const sg=new THREE.BufferGeometry(), sp=new Float32Array(2000*3);
+  for(let i=0;i<2000;i++){sp[i*3]=(Math.random()-.5)*500;sp[i*3+1]=(Math.random()-.5)*500;sp[i*3+2]=(Math.random()-.5)*500;}
+  sg.setAttribute('position',new THREE.BufferAttribute(sp,3));
+  s.scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:1,sizeAttenuation:false})));
 
-  // Nebula — heart-shaped cloud
-  const N = 7000;
-  const geo = new THREE.BufferGeometry();
-  const pos = new Float32Array(N * 3);
-  const col = new Float32Array(N * 3);
-  for (let i = 0; i < N; i++) {
-    // Distribute in rough sphere with some stretching
-    const th = Math.random() * Math.PI * 2;
-    const ph = Math.acos(2 * Math.random() - 1);
-    const r = 8 + Math.pow(Math.random(), 0.5) * 16;
-    pos[i*3]   = r * Math.sin(ph) * Math.cos(th);
-    pos[i*3+1] = r * Math.sin(ph) * Math.sin(th) * 0.65;
-    pos[i*3+2] = r * Math.cos(ph);
-    // Pink-magenta-purple palette
-    const t = Math.random();
-    col[i*3]   = 0.7 + t * 0.3;
-    col[i*3+1] = 0.15 + t * 0.25;
-    col[i*3+2] = 0.55 + t * 0.45;
+  // Nebula
+  const N=7000, geo=new THREE.BufferGeometry(), pos=new Float32Array(N*3), col=new Float32Array(N*3);
+  for(let i=0;i<N;i++){
+    const th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1),r=8+Math.pow(Math.random(),.5)*16;
+    pos[i*3]=r*Math.sin(ph)*Math.cos(th); pos[i*3+1]=r*Math.sin(ph)*Math.sin(th)*.65; pos[i*3+2]=r*Math.cos(ph);
+    const t=Math.random(); col[i*3]=.7+t*.3; col[i*3+1]=.15+t*.25; col[i*3+2]=.55+t*.45;
   }
-  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-  s.nebula = new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.22, vertexColors: true, transparent: true, opacity: 0.9 }));
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+  s.nebula=new THREE.Points(geo,new THREE.PointsMaterial({size:.22,vertexColors:true,transparent:true,opacity:.9}));
   s.scene.add(s.nebula);
 
   // Inner bright core
-  const coreGeo = new THREE.BufferGeometry();
-  const cp = new Float32Array(800 * 3);
-  for (let i = 0; i < 800; i++) {
-    cp[i*3] = (Math.random()-0.5)*8; cp[i*3+1] = (Math.random()-0.5)*8; cp[i*3+2] = (Math.random()-0.5)*8;
-  }
-  coreGeo.setAttribute('position', new THREE.BufferAttribute(cp, 3));
-  s.scene.add(new THREE.Points(coreGeo, new THREE.PointsMaterial({ color: 0xff99cc, size: 0.35, transparent: true, opacity: 0.7 })));
+  const cg=new THREE.BufferGeometry(),cp=new Float32Array(800*3);
+  for(let i=0;i<800;i++){cp[i*3]=(Math.random()-.5)*8;cp[i*3+1]=(Math.random()-.5)*8;cp[i*3+2]=(Math.random()-.5)*8;}
+  cg.setAttribute('position',new THREE.BufferAttribute(cp,3));
+  s.scene.add(new THREE.Points(cg,new THREE.PointsMaterial({color:0xff99cc,size:.35,transparent:true,opacity:.7})));
 
-  // Countdown update
+  // Countdown text
   function updateCd() {
-    const due = new Date('2026-06-13T00:00:00+02:00');
-    const now = new Date();
-    const diff = due - now;
-    if (diff <= 0) {
-      document.getElementById('cd-days').textContent = '¡Bienvenido Floro!';
-      document.getElementById('cd-unit').textContent = '';
-      document.getElementById('cd-sub').textContent = '';
-      return;
+    const due=new Date('2026-06-13T00:00:00+02:00'), now=new Date(), diff=due-now;
+    if(diff<=0){
+      document.getElementById('cd-days').textContent='0';
+      document.getElementById('cd-unit').textContent='¡Bienvenido, Floro!';
+      document.getElementById('cd-sub').textContent=''; return;
     }
-    const days = Math.floor(diff / 86400000);
-    const hours = Math.floor((diff % 86400000) / 3600000);
-    const mins = Math.floor((diff % 3600000) / 60000);
-    document.getElementById('cd-days').textContent = days;
-    document.getElementById('cd-unit').textContent = days === 1 ? 'día' : 'días';
-    document.getElementById('cd-sub').textContent = `${hours}h ${String(mins).padStart(2,'0')}m restantes`;
+    const days=Math.floor(diff/86400000), hours=Math.floor((diff%86400000)/3600000), mins=Math.floor((diff%3600000)/60000);
+    document.getElementById('cd-days').textContent=days;
+    document.getElementById('cd-unit').textContent=days===1?'día':'días';
+    document.getElementById('cd-sub').textContent=`${hours}h ${String(mins).padStart(2,'0')}m`;
   }
-  updateCd();
-  s.cdInterval = setInterval(updateCd, 30000);
+  updateCd(); s.cdInterval=setInterval(updateCd,30000);
 
-  s.clock = new THREE.Clock();
-  s.update = () => {
-    const t = s.clock.getElapsedTime();
-    const pulse = 1 + Math.sin(t * 1.1) * 0.07;
-    s.nebula.scale.setScalar(pulse);
-    s.nebula.material.opacity = 0.75 + Math.sin(t * 1.1) * 0.15;
+  // Week timeline dots
+  const cw=getCurrentWeekIdx();
+  const tl=document.getElementById('cd-timeline');
+  if(tl) tl.innerHTML=WEEKS_CD.map((w,i)=>`<div class="cd-dot${i<cw?' past':''}${i===cw?' current':''}" title="${w.label}: ${w.desc}"></div>`).join('');
+
+  s.clock=new THREE.Clock();
+  s.update=()=>{
+    const t=s.clock.getElapsedTime(), p=1+Math.sin(t*1.1)*.07;
+    s.nebula.scale.setScalar(p);
+    s.nebula.material.opacity=.75+Math.sin(t*1.1)*.15;
   };
   resumeScene('cuenta');
 }
 
-// Expose init handler to regular script
-const initFns = { estrellas: initEstrellas, galaxia: initGalaxia, cuarto: initCuarto, cuenta: initCuenta };
+// ─── Expose to regular script ─────────────────────────────────────────
+const initFns = { estrellas:initEstrellas, galaxia:initGalaxia, cuarto:initCuarto, cuenta:initCuenta };
 window._init3D = function(name) {
   stopActive();
   if (!STATE[name]) initFns[name]?.();
   else resumeScene(name);
 };
+
+// Init cuarto progress on load even before tab is opened
+updateCuartoProgress();
 </script>
 
 </body>
