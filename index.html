@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Floro — Plan Bebé 🍼</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a1a; }
+  .header { background: #2d2d2d; color: white; padding: 24px 32px; }
+  .header h1 { font-size: 22px; font-weight: 700; }
+  .header p { font-size: 13px; color: #aaa; margin-top: 4px; }
+  .tabs { display: flex; background: #fff; border-bottom: 2px solid #e8e4da; padding: 0 32px; gap: 4px; }
+  .tab { padding: 14px 24px; font-size: 14px; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; color: #888; transition: all .15s; }
+  .tab:hover { color: #333; }
+  .tab.active { color: #c17d3c; border-bottom-color: #c17d3c; }
+  .content { display: none; padding: 32px; max-width: 860px; margin: 0 auto; }
+  .content.active { display: block; }
+
+  a.lnk { color: #c17d3c; text-decoration: none; font-weight: 600; border-bottom: 1px dotted #c17d3c; }
+  a.lnk:hover { border-bottom-style: solid; }
+
+  /* ── YA TENEMOS SECTION ── */
+  .ya-section { background: white; border-radius: 10px; border: 2px solid #28a745; margin-bottom: 24px; overflow: hidden; }
+  .ya-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; font-weight: 700; font-size: 14px; background: #eaf7ec; user-select: none; }
+  .ya-count-badge { background: #28a745; color: white; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 12px; }
+  .ya-arrow { margin-left: auto; font-size: 12px; color: #555; transition: transform .2s; }
+  .ya-arrow.open { transform: rotate(180deg); }
+  .ya-body { padding: 10px 16px 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .ya-item { display: inline-flex; align-items: center; gap: 6px; background: #f0faf0; border: 1px solid #c3e6cb; border-radius: 20px; padding: 4px 10px 4px 8px; font-size: 13px; }
+  .ya-tick { color: #28a745; font-weight: 900; font-size: 12px; }
+  .ya-name { color: #555; text-decoration: line-through; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ya-undo { color: #aaa; cursor: pointer; font-size: 15px; margin-left: 2px; line-height: 1; }
+  .ya-undo:hover { color: #e74c3c; }
+
+  /* ── COMPRAS ── */
+  .week { margin-bottom: 36px; }
+  .week-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; border-bottom: 2px solid #e8e4da; padding-bottom: 10px; }
+  .week-num { background: #c17d3c; color: white; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; letter-spacing: .5px; }
+  .week-title { font-size: 17px; font-weight: 700; }
+  .week-dates { font-size: 12px; color: #888; margin-left: auto; }
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #888; margin: 16px 0 8px; }
+  .items { list-style: none; }
+  .items li { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f0ede6; font-size: 14px; line-height: 1.5; transition: opacity .2s; }
+  .items li:last-child { border-bottom: none; }
+  .items li.tachado { opacity: 0.55; }
+  .items li.tachado strong { text-decoration: line-through; color: #999; }
+  .check { width: 18px; height: 18px; border: 2px solid #c17d3c; border-radius: 4px; flex-shrink: 0; margin-top: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; }
+  .check.done { background: #c17d3c; border-color: #c17d3c; }
+  .check.done::after { content: '✓'; color: white; font-size: 11px; font-weight: 800; }
+  .tag { font-size: 11px; padding: 2px 7px; border-radius: 10px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+  .tag-feli { background: #d1ecf1; color: #0c5460; }
+  .tag-luli { background: #f8d7da; color: #721c24; }
+  .tag-urgent { background: #fff3cd; color: #856404; }
+  .note { font-size: 12px; color: #888; margin-top: 3px; line-height: 1.5; }
+  .alert { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 16px; border-radius: 6px; margin: 16px 0; font-size: 13px; line-height: 1.6; }
+  .alert strong { display: block; margin-bottom: 4px; }
+
+  /* ── PLAN DE PARTO ── */
+  .pp-section { margin-bottom: 28px; }
+  .pp-section h2 { font-size: 15px; font-weight: 700; padding: 8px 14px; background: #f0ede6; border-radius: 6px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .pp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pp-box { border-radius: 8px; padding: 14px 16px; }
+  .pp-box.si { background: #eaf7ec; border-left: 4px solid #28a745; }
+  .pp-box.no { background: #fdf0f0; border-left: 4px solid #dc3545; }
+  .pp-box.dis { background: #fffbe6; border-left: 4px solid #ffc107; }
+  .pp-box h3 { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
+  .pp-box.si h3 { color: #155724; }
+  .pp-box.no h3 { color: #721c24; }
+  .pp-box.dis h3 { color: #856404; }
+  .pp-box ul { list-style: none; }
+  .pp-box ul li { font-size: 13px; padding: 3px 0; display: flex; gap: 6px; align-items: flex-start; }
+  .pp-box ul li::before { content: '—'; color: #ccc; flex-shrink: 0; }
+  .pp-note { font-size: 13px; background: #f0ede6; border-radius: 8px; padding: 14px 16px; margin-top: 12px; line-height: 1.6; }
+  .pp-note strong { color: #c17d3c; }
+  .pp-intro { font-size: 14px; color: #555; line-height: 1.7; margin-bottom: 24px; padding: 16px; background: white; border-radius: 8px; border: 1px solid #e8e4da; }
+  .pp-intro strong { color: #c17d3c; }
+  .print-btn { position: fixed; bottom: 24px; right: 24px; background: #c17d3c; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+  .print-btn:hover { background: #a8682f; }
+  @media print { .tabs, .print-btn { display: none; } .content { display: block !important; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🍼 Floro — Plan de llegada</h1>
+  <p>Semana 30 · Fecha probable de parto: 13 de junio de 2026</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('compras', this)">🛒 Plan de compras</div>
+  <div class="tab" onclick="switchTab('parto', this)">🏥 Plan de parto</div>
+</div>
+
+<!-- ═══════════════════════════════ TAB COMPRAS ═══════════════════════════════ -->
+<div id="tab-compras" class="content active">
+
+  <!-- YA TENEMOS (dinámico) -->
+  <div id="ya-section" class="ya-section" style="display:none">
+    <div class="ya-header" onclick="toggleYaSection()">
+      <span>✅ Ya tienen / Completado</span>
+      <span id="ya-count" class="ya-count-badge">0</span>
+      <span id="ya-arrow" class="ya-arrow">▲</span>
+    </div>
+    <div id="ya-body" class="ya-body">
+      <div id="ya-list"></div>
+    </div>
+  </div>
+
+  <div class="alert">
+    <strong>✅ Ya tienen (del spreadsheet):</strong>
+    Cochecito Joolz AER con capazo · Adaptadores huevito · Huevito Maxi Cosi · Cuna Colecho Maxi Cosi Iora Air · Máquina ruido blanco
+    <br><br>
+    <strong>🎁 Llega de Feli Ortiz:</strong>
+    Bouncer Baby Bjorn · Accesorio Trip Trap · Mochilita Baby Bjorn · Fular · Nido
+  </div>
+
+  <!-- ── SEMANA 30 ── -->
+  <div class="week">
+    <div class="week-header">
+      <span class="week-num">Semana 30</span>
+      <span class="week-title">⚡ Muebles — pedir HOY</span>
+      <span class="week-dates">5–11 abril</span>
+    </div>
+    <p class="note" style="margin-bottom:12px;color:#c17d3c;font-weight:600;font-size:13px;">Los muebles tardan 2-4 semanas. Pedir ya para que lleguen antes del mes 8.</p>
+    <div class="section-title">Nursery</div>
+    <ul class="items">
+      <li data-key="sillon-lactancia"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Sillón de lactancia para Luli</strong> <span class="tag tag-luli">Luli</span>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=sillon+lactancia+glider+amamantar" target="_blank">Amazon</a> · <a class="lnk" href="https://www.amazon.es/s?k=stokke+home+nurser" target="_blank">Stokke Home Nurser</a> · <a class="lnk" href="https://www.elcorteingles.es/bebe/search/?s=sillon+lactancia" target="_blank">El Corte Inglés</a></div>
+      </div></li>
+      <li data-key="comoda-cambiador"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Cómoda/cajonera para ropa de Floro</strong>
+        <div class="note"><a class="lnk" href="https://www.ikea.com/es/es/search/products/?q=hemnes+cajonera" target="_blank">IKEA Hemnes</a> o <a class="lnk" href="https://www.ikea.com/es/es/search/products/?q=koppang" target="_blank">Koppang</a> · El cambiador de silicona va encima</div>
+      </div></li>
+      <li data-key="cambiador-sebra"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Cambiador de silicona Sebra Pulse Pur</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=sebra+pulse+pur+cambiador+silicona" target="_blank">Amazon</a> · Suele tardar — pedir ya</div>
+      </div></li>
+      <li data-key="tiradores-cajoneras"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Tiradores para cajoneras</strong>
+        <div class="note">Si van a personalizar la cómoda · <a class="lnk" href="https://www.amazon.es/s?k=tiradores+cajonera+nordicos+bebe" target="_blank">Amazon</a></div>
+      </div></li>
+      <li data-key="lampara-nursery"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Lámpara de techo nursery</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=lampara+techo+cuarto+bebe+nordica" target="_blank">Amazon</a> · <a class="lnk" href="https://www.ikea.com/es/es/search/products/?q=lampara+infantil" target="_blank">IKEA</a></div>
+      </div></li>
+      <li data-key="alfombra-cuarto"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Alfombra para el suelo del cuarto</strong>
+        <div class="note">Medir antes · <a class="lnk" href="https://www.amazon.es/s?k=alfombra+cuarto+bebe+lavable" target="_blank">Amazon</a> · <a class="lnk" href="https://www.ikea.com/es/es/search/products/?q=alfombra+infantil" target="_blank">IKEA</a></div>
+      </div></li>
+      <li data-key="raskog-ikea"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Carrito auxiliar IKEA Råskog</strong> <span class="tag tag-urgent">Este finde en IKEA</span>
+        <div class="note"><a class="lnk" href="https://www.ikea.com/es/es/p/raskog-carrito-negro-20574748/" target="_blank">IKEA Råskog ~20€</a> · Vallecas o Alcorcón</div>
+      </div></li>
+    </ul>
+    <div class="section-title">Decisiones</div>
+    <ul class="items">
+      <li data-key="confirmar-feli"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Confirmar qué trae Feli Ortiz</strong>
+        <div class="note">Bouncer · Mochilita · Fular · Nido · Accesorio Trip Trap — no duplicar</div>
+      </div></li>
+      <li data-key="plan-parto-arrancar"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Leer el plan de parto y anotar preguntas para la matrona</strong>
+        <div class="note">Ver pestaña Plan de Parto</div>
+      </div></li>
+    </ul>
+  </div>
+
+  <!-- ── SEMANA 31 ── -->
+  <div class="week">
+    <div class="week-header">
+      <span class="week-num">Semana 31</span>
+      <span class="week-title">🛁 Baño, colecho y lactancia</span>
+      <span class="week-dates">12–18 abril</span>
+    </div>
+    <ul class="items">
+      <li data-key="banera-stokke"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Bañadera + soporte recién nacido</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=stokke+flexi+bath+soporte" target="_blank">Stokke FlexiBath en Amazon</a> ~60€</div>
+      </div></li>
+      <li data-key="colchon-cuna"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Colchón firme para cuna colecho</strong>
+        <div class="note">Si no viene incluido · <a class="lnk" href="https://www.amazon.es/s?k=colchon+firme+minicuna+colecho" target="_blank">Amazon</a></div>
+      </div></li>
+      <li data-key="sabanas-bajeras"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Sábanas bajeras ×3</strong>
+        <div class="note">Para la cuna colecho · <a class="lnk" href="https://www.amazon.es/s?k=sabanas+bajeras+minicuna+colecho" target="_blank">Amazon</a></div>
+      </div></li>
+      <li data-key="colchon-impermeable"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Colchón impermeable ×2</strong>
+        <div class="note">Para accidentes nocturnos · <a class="lnk" href="https://www.amazon.es/s?k=protector+colchon+impermeable+minicuna+colecho" target="_blank">Amazon</a> ~25€ c/u</div>
+      </div></li>
+      <li data-key="termometro-agua"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Termómetro de agua para bañera</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=termometro+agua+bano+bebe" target="_blank">Amazon</a> ~8€ · o farmacia</div>
+      </div></li>
+      <li data-key="termometro-oido"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Termómetro de oído Braun ThermoScan 7</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=braun+thermoscan+7+IRT6520" target="_blank">Amazon</a> ~50€ · El más fiable para recién nacidos</div>
+      </div></li>
+      <li data-key="sujetadores-lactancia"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Sujetadores de lactancia ×3</strong> <span class="tag tag-luli">Luli</span>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=bravado+body+silk+seamless+lactancia" target="_blank">Bravado Body Silk Seamless en Amazon</a> ~35-45€ c/u</div>
+      </div></li>
+      <li data-key="asesora-ibclc"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Buscar asesora de lactancia IBCLC en Madrid</strong>
+        <div class="note">Tener el contacto antes del parto · <a class="lnk" href="https://www.google.com/search?q=asesora+lactancia+IBCLC+Madrid" target="_blank">Buscar en Google</a></div>
+      </div></li>
+    </ul>
+  </div>
+
+  <!-- ── SEMANA 32 ── -->
+  <div class="week">
+    <div class="week-header">
+      <span class="week-num">Semana 32</span>
+      <span class="week-title">👕 Primera ropa de Floro</span>
+      <span class="week-dates">19–25 abril</span>
+    </div>
+    <div class="alert" style="margin-bottom:12px">
+      <strong>⚠️ Floro nace en junio = verano en Madrid.</strong>
+      Solo saco de dormir 1.0 tog (verano). NO comprar el de 2.5 tog todavía. No sobrecomprar talla 0-3m — dura 3-4 semanas.
+    </div>
+    <ul class="items">
+      <li data-key="bodies-50"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Bodies manga corta talla 50/56 ×6</strong>
+        <div class="note"><a class="lnk" href="https://www2.hm.com/es_es/ninos/bebe/ropa/bodies.html" target="_blank">H&amp;M</a> · <a class="lnk" href="https://www.zara.com/es/es/kids-baby-girl-l728.html" target="_blank">Zara Baby</a> · <a class="lnk" href="https://www.amazon.es/s?k=bodies+manga+corta+recien+nacido+50+56" target="_blank">Amazon</a></div>
+      </div></li>
+      <li data-key="pijamas-50"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Pijamas cremallera talla 50/56 ×6</strong>
+        <div class="note">Cremallera, no botones — son un infierno de noche · <a class="lnk" href="https://www.amazon.es/s?k=pijamas+cremallera+recien+nacido+bebe" target="_blank">Amazon</a> · <a class="lnk" href="https://www.babymori.com/es/collections/sleepsuits" target="_blank">Mori</a></div>
+      </div></li>
+      <li data-key="gorritos-manoplas"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Gorritos + manoplas ×3 sets</strong>
+        <div class="note"><a class="lnk" href="https://www2.hm.com/es_es/ninos/bebe/ropa/accesorios.html" target="_blank">H&amp;M</a> · <a class="lnk" href="https://www.amazon.es/s?k=gorro+manoplas+recien+nacido" target="_blank">Amazon</a></div>
+      </div></li>
+      <li data-key="calcetines-bebe"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Calcetines ×5 pares</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=calcetines+recien+nacido+0+3+meses" target="_blank">Amazon</a></div>
+      </div></li>
+      <li data-key="body-salida"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Body + pijama especial para la salida del hospital</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=conjunto+salida+hospital+recien+nacido" target="_blank">Amazon</a> · <a class="lnk" href="https://www.babymori.com/es" target="_blank">Mori</a></div>
+      </div></li>
+      <li data-key="muselinas"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Muselinas ×6</strong>
+        <div class="note">Comprar de más — sirven para todo · <a class="lnk" href="https://www.amazon.es/s?k=muselinas+bebe+algodon" target="_blank">Amazon</a></div>
+      </div></li>
+      <li data-key="baberos-tela"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Baberos de tela ×8</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=baberos+tela+recien+nacido" target="_blank">Amazon</a></div>
+      </div></li>
+      <li data-key="capa-bano"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Capa de baño / toalla de bebé ×2</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=capa+bano+bebe+toalla+capucha" target="_blank">Amazon</a></div>
+      </div></li>
+      <li data-key="saco-verano"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Saco de dormir 1.0 tog (verano)</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=mori+saco+dormir+verano+1+tog+bebe" target="_blank">Mori en Amazon</a> ~55€ · También <a class="lnk" href="https://www.amazon.es/s?k=ergobaby+saco+dormir+1+tog" target="_blank">Ergobaby</a></div>
+      </div></li>
+      <li data-key="mantas-finas"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Mantas finas ×2</strong>
+        <div class="note">Para verano · <a class="lnk" href="https://www.amazon.es/s?k=manta+bebe+verano+algodon" target="_blank">Amazon</a></div>
+      </div></li>
+    </ul>
+  </div>
+
+  <!-- ── SEMANA 33 ── -->
+  <div class="week">
+    <div class="week-header">
+      <span class="week-num">Semana 33</span>
+      <span class="week-title">🧴 Higiene, pañales y nursery</span>
+      <span class="week-dates">26 abril – 2 mayo</span>
+    </div>
+    <div class="section-title">⚡ Lavar ropa de Floro esta semana</div>
+    <ul class="items">
+      <li data-key="lavar-ropa"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Lavar TODA la ropa de Floro con detergente bebé</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=dreft+detergente+bebe" target="_blank">Dreft</a> o <a class="lnk" href="https://www.amazon.es/s?k=persil+sensitive+bebe+detergente" target="_blank">Persil Sensitive</a> · Guardar en cómoda organizada</div>
+      </div></li>
+    </ul>
+    <div class="section-title">Higiene bebé</div>
+    <ul class="items">
+      <li data-key="gel-suave"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Gel suave para recién nacido</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=mustela+gel+ducha+2+en+1+recien+nacido" target="_blank">Mustela Gel 2en1</a> o <a class="lnk" href="https://www.amazon.es/s?k=weleda+calendula+gel+bano+bebe" target="_blank">Weleda Calendula</a></div>
+      </div></li>
+      <li data-key="crema-hidratante"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Crema hidratante bebé</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=weleda+calendula+crema+bebe" target="_blank">Weleda Calendula en Amazon</a> ~14€ · Farmacia</div>
+      </div></li>
+      <li data-key="esponja-bebe"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Esponja suave para recién nacido</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=esponja+bebe+recien+nacido+suave" target="_blank">Amazon</a> · o farmacia</div>
+      </div></li>
+      <li data-key="bepanthen"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Crema para el culete Bepanthen</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=bepanthen+pomada+bebe+culete" target="_blank">Amazon</a> ~8€ · Farmacia</div>
+      </div></li>
+      <li data-key="frida-nose"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Aspirador nasal Frida NoseFrida</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=frida+nosefrida+aspirador+nasal" target="_blank">Amazon</a> ~15€ · Farmacia · Parece horrible, funciona genial</div>
+      </div></li>
+      <li data-key="suero-gasas"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Suero fisiológico + gasas estériles</strong>
+        <div class="note">Farmacia · <a class="lnk" href="https://www.amazon.es/s?k=suero+fisiologico+bebe+monodosis" target="_blank">Amazon</a></div>
+      </div></li>
+      <li data-key="lima-zoli"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Lima eléctrica de uñas Zoli BUZZ B</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=zoli+buzz+b+lima+electrica+bebe" target="_blank">Amazon</a> ~25€ · Cortar uñas de recién nacido con tijera es aterrador</div>
+      </div></li>
+    </ul>
+    <div class="section-title">Pañales — stock inicial</div>
+    <ul class="items">
+      <li data-key="panales-stock"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Pañales RN ×1 pack + Talla 1 ×2 packs</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=pampers+premium+protection+recien+nacido" target="_blank">Pampers Premium Protection en Amazon</a> · No sobrecomprar RN — pasan a T1 muy rápido</div>
+      </div></li>
+      <li data-key="waterwipes-stock"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Toallitas WaterWipes ×3 packs</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=waterwipes+toallitas+bebe+recien+nacido" target="_blank">Amazon</a> · Solo agua, sin productos — ideales piel recién nacido</div>
+      </div></li>
+    </ul>
+    <div class="section-title">Nursery final</div>
+    <ul class="items">
+      <li data-key="cesta-organizador"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Organizador tipo cesta para el cambiador</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=cesta+organizador+cambiador+bebe" target="_blank">Amazon</a> · <a class="lnk" href="https://www.ikea.com/es/es/search/products/?q=cesta+organización" target="_blank">IKEA</a></div>
+      </div></li>
+      <li data-key="humidificador"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Humidificador Crane Drop</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=crane+drop+humidificador+bebe" target="_blank">Amazon</a> ~60€ · Esencial en verano con AC — el aire seco irrita la nariz del bebé</div>
+      </div></li>
+      <li data-key="luz-calida"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Luz cálida / lamparita suave para noche</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=lampara+nocturna+bebe+luz+calida+regulable" target="_blank">Amazon</a> · Que sea regulable en intensidad</div>
+      </div></li>
+      <li data-key="gimnasio-suelo"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Gimnasio de suelo</strong>
+        <div class="note">Si no llega de regalo · <a class="lnk" href="https://www.amazon.es/s?k=gimnasio+actividades+bebe+suelo+recien+nacido" target="_blank">Amazon</a> · <a class="lnk" href="https://www.elcorteingles.es/bebe/search/?s=gimnasio+bebe" target="_blank">El Corte Inglés</a></div>
+      </div></li>
+    </ul>
+  </div>
+
+  <!-- ── SEMANA 34 ── -->
+  <div class="week">
+    <div class="week-header">
+      <span class="week-num">Semana 34</span>
+      <span class="week-title">📋 Plan de parto + lactancia</span>
+      <span class="week-dates">3–9 mayo</span>
+    </div>
+    <ul class="items">
+      <li data-key="plan-parto-matrona"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Finalizar y entregar plan de parto a la matrona</strong> <span class="tag tag-urgent">Importante</span>
+        <div class="note">Ver pestaña Plan de Parto · Llevar impreso ×3 copias a la consulta</div>
+      </div></li>
+      <li data-key="playlist-parto"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Crear playlist de música para el parto en Spotify</strong>
+        <div class="note"><a class="lnk" href="https://open.spotify.com" target="_blank">Spotify</a> · Preparar con tiempo, no el día antes</div>
+      </div></li>
+      <li data-key="sacaleches"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Sacaleches</strong> <span class="tag tag-luli">Luli</span>
+        <div class="note">Consultar primero si la Seguridad Social lo cubre o alquila en farmacia · Si no: <a class="lnk" href="https://www.amazon.es/s?k=medela+swing+maxi+flex+sacaleches" target="_blank">Medela Swing Maxi en Amazon</a> ~200€</div>
+      </div></li>
+      <li data-key="discos-lactancia"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Discos de lactancia desechables ×2 packs</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=medela+discos+lactancia+desechables" target="_blank">Medela en Amazon</a> · Farmacia</div>
+      </div></li>
+      <li data-key="empapadores"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Empapadores para la cama</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=empapadores+cama+postparto" target="_blank">Amazon</a></div>
+      </div></li>
+      <li data-key="lansinoh"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Crema de pezones Lansinoh HPA Lanolina</strong> <span class="tag tag-luli">Luli</span>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=lansinoh+hpa+lanolina+crema+pezones" target="_blank">Amazon</a> ~12€ · Farmacia · Comprar antes del parto</div>
+      </div></li>
+      <li data-key="almohada-lactancia"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Almohada de lactancia My Brest Friend</strong> <span class="tag tag-luli">Luli</span>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=my+brest+friend+almohada+lactancia" target="_blank">Amazon</a> ~60€</div>
+      </div></li>
+      <li data-key="pezoneras"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Pezoneras Medela Contact ×pack</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=medela+pezoneras+contact" target="_blank">Amazon</a> ~12€ · Tenerlas en casa por si acaso</div>
+      </div></li>
+      <li data-key="monitor-bebe"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Monitor con vídeo Motorola VM65X</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=motorola+vm65x+monitor+bebe+video" target="_blank">Amazon</a> ~85€</div>
+      </div></li>
+    </ul>
+  </div>
+
+  <!-- ── SEMANA 35 ── -->
+  <div class="week">
+    <div class="week-header">
+      <span class="week-num">Semana 35</span>
+      <span class="week-title">🏥 Bolso hospital — armar</span>
+      <span class="week-dates">10–16 mayo</span>
+    </div>
+    <div class="section-title">Para Luli</div>
+    <ul class="items">
+      <li data-key="camison-hospital"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Camisón de parto ×2</strong> <span class="tag tag-luli">Luli</span>
+        <div class="note">Con apertura delantera o cruzado — fundamental para lactancia · <a class="lnk" href="https://www.amazon.es/s?k=camison+parto+lactancia+abertura+delantera" target="_blank">Amazon</a></div>
+      </div></li>
+      <li data-key="braguitas-postparto"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Braguitas postparto desechables ×pack</strong> <span class="tag tag-luli">Luli</span>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=frida+mom+braguitas+postparto+desechables" target="_blank">Frida Mom en Amazon</a> · <a class="lnk" href="https://www.amazon.es/s?k=medela+braguitas+postparto+desechables" target="_blank">Medela</a></div>
+      </div></li>
+      <li data-key="compresas-postparto"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Compresas postparto</strong> <span class="tag tag-luli">Luli</span>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=compresas+postparto+noche+flujo+intenso" target="_blank">Ausonia Noche en Amazon</a> · Mercadona · Farmacia</div>
+      </div></li>
+      <li data-key="frida-ice"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Frida Mom Instant Ice Maxi Pads (hielos toallita)</strong> <span class="tag tag-luli">Luli</span>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=frida+mom+instant+ice+maxi+pads" target="_blank">Amazon</a> · Un antes y un después en el postparto inmediato</div>
+      </div></li>
+      <li data-key="cojin-donut"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Cojín donut postparto inflable</strong> <span class="tag tag-luli">Luli</span>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=cojin+donut+postparto+inflable+hemorroides" target="_blank">Amazon</a> ~15€ · Para sentarse los primeros días</div>
+      </div></li>
+      <li data-key="zapatillas-hospital"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Zapatillas antideslizantes + calcetines calientes</strong> <span class="tag tag-luli">Luli</span>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=zapatillas+hospital+antideslizantes+mujer" target="_blank">Amazon</a></div>
+      </div></li>
+      <li data-key="snacks-parto"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Snacks para el trabajo de parto</strong>
+        <div class="note">Frutos secos, barritas, <a class="lnk" href="https://www.amazon.es/s?k=bebida+isotonica+electrolit+recovery" target="_blank">bebida isotónica</a></div>
+      </div></li>
+      <li data-key="cargador-auriculares"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Cargador + auriculares + playlist lista</strong>
+        <div class="note">Preparar el día antes — que el cable esté en el bolso</div>
+      </div></li>
+    </ul>
+    <div class="section-title">Para Floro</div>
+    <ul class="items">
+      <li data-key="biberones"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Biberones ×2-4</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=dr+browns+natural+flow+biberon+recien+nacido" target="_blank">Dr. Brown's Natural Flow en Amazon</a> ~15€ c/u</div>
+      </div></li>
+      <li data-key="chupetes"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Chupetes ×3 para probar</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=mam+air+chupete+0+6+meses+recien+nacido" target="_blank">MAM Air 0-6m en Amazon</a> ~10€ set · Para probar cuál acepta</div>
+      </div></li>
+      <li data-key="panales-bolso"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Pañales RN ×10 para el bolso</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=pampers+premium+protection+recien+nacido" target="_blank">Pampers Premium en Amazon</a></div>
+      </div></li>
+      <li data-key="waterwipes-bolso"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Toallitas WaterWipes para el bolso</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=waterwipes+toallitas+viaje" target="_blank">Amazon</a> · Pack de viaje</div>
+      </div></li>
+    </ul>
+  </div>
+
+  <!-- ── SEMANA 36 ── -->
+  <div class="week">
+    <div class="week-header">
+      <span class="week-num">Semana 36</span>
+      <span class="week-title">🎒 SEMANA CLAVE — Bolso terminado</span>
+      <span class="week-dates">17–23 mayo</span>
+    </div>
+    <div class="alert">
+      <strong>⚠️ A partir de aquí puede llegar en cualquier momento.</strong>
+      El bolso tiene que estar en la puerta con la documentación. El huevito instalado en el coche.
+    </div>
+    <ul class="items">
+      <li data-key="bolso-terminado"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>✅ BOLSO HOSPITAL TERMINADO Y EN LA PUERTA</strong>
+        <div class="note">Documentación: DNI ambos · Cartilla embarazo · Tarjeta seguro · Plan de parto impreso ×3</div>
+      </div></li>
+      <li data-key="huevito-coche"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Instalar y practicar con el huevito Maxi Cosi en el coche</strong>
+        <div class="note">Practicar cómo se abrocha antes de tener al bebé en brazos · <a class="lnk" href="https://www.youtube.com/results?search_query=maxi+cosi+instalar+coche" target="_blank">Ver tutoriales en YouTube</a></div>
+      </div></li>
+      <li data-key="ruta-hospital"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Confirmar ruta al hospital + teléfonos de urgencias</strong>
+        <div class="note">Guardar en el móvil · Saber cuál es la entrada de urgencias</div>
+      </div></li>
+      <li data-key="huckleberry"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Descargar app Huckleberry</strong>
+        <div class="note"><a class="lnk" href="https://apps.apple.com/es/app/huckleberry-baby-sleep-app/id1069329968" target="_blank">App Store</a> · <a class="lnk" href="https://play.google.com/store/apps/details?id=com.huckleberry_labs.app" target="_blank">Google Play</a> · Gratis · Seguimiento de tomas y sueño — muy útil los primeros meses</div>
+      </div></li>
+      <li data-key="repaso-nursery"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Repaso completo de nursery — ¿está todo?</strong>
+        <div class="note">Recorrer la lista y tildar lo que falta</div>
+      </div></li>
+    </ul>
+  </div>
+
+  <!-- ── SEMANA 37-38 ── -->
+  <div class="week">
+    <div class="week-header">
+      <span class="week-num">Semanas 37–38</span>
+      <span class="week-title">😮‍💨 Repaso final y descanso</span>
+      <span class="week-dates">24 mayo – 6 junio</span>
+    </div>
+    <ul class="items">
+      <li data-key="segunda-lavada"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Segunda vuelta de lavado de ropa si hace falta</strong>
+      </div></li>
+      <li data-key="tacho-panales"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Tacho para pañales</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=tacho+cubo+panales+bebe+nursery" target="_blank">Amazon</a> · o simplemente una bolsa grande en el cuarto</div>
+      </div></li>
+      <li data-key="bolso-cambiador"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Bolso cambiador para salir</strong>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=bolso+cambiador+bebe+amplio" target="_blank">Amazon</a></div>
+      </div></li>
+      <li data-key="cargar-coche"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Cargar el coche con el bolso del hospital</strong>
+      </div></li>
+      <li data-key="descanso"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Descansar 🙏</strong>
+      </div></li>
+    </ul>
+  </div>
+
+  <!-- ── SEMANA 39 ── -->
+  <div class="week">
+    <div class="week-header">
+      <span class="week-num">Semana 39</span>
+      <span class="week-title">👶 Solo esperar a Floro</span>
+      <span class="week-dates">7–13 junio</span>
+    </div>
+    <ul class="items">
+      <li data-key="todo-listo"><div class="check" onclick="toggle(this)"></div><div><strong>Todo listo ✓</strong></div></li>
+      <li data-key="telefono-cargado"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>Teléfono de Luli cargado siempre</strong>
+      </div></li>
+      <li data-key="disfrutar"><div class="check" onclick="toggle(this)"></div><div>
+        <strong>❤️ Disfrutar las últimas semanas de a dos</strong>
+      </div></li>
+    </ul>
+  </div>
+
+</div><!-- /tab-compras -->
+
+
+<!-- ═══════════════════════════════ TAB PARTO ═══════════════════════════════ -->
+<div id="tab-parto" class="content">
+
+  <div class="pp-intro">
+    <strong>Plan de parto de Luli y Hernán — Bebé Floro</strong><br>
+    Este documento refleja nuestros deseos y preferencias para el parto. Entendemos que pueden surgir situaciones médicas que requieran cambiar el plan y confiamos en el criterio del equipo. Pedimos que, siempre que sea posible y seguro, se respeten estas preferencias y se nos explique cualquier intervención antes de realizarla.
+    <br><br>
+    <strong>Hospital:</strong> _________________ &nbsp;&nbsp; <strong>Matrona:</strong> _________________ &nbsp;&nbsp; <strong>FPP:</strong> 13 de junio de 2026
+  </div>
+
+  <div class="pp-section">
+    <h2>🌿 Ambiente y acompañamiento</h2>
+    <div class="pp-grid">
+      <div class="pp-box si">
+        <h3>✅ Queremos</h3>
+        <ul>
+          <li>Hernán presente en todo momento, incluida cesárea si fuera necesaria</li>
+          <li>Luz tenue en la sala de partos</li>
+          <li>Música propia (playlist preparada en móvil)</li>
+          <li>Hablar con Luli antes de cualquier intervención</li>
+          <li>Intimidad y silencio en lo posible</li>
+        </ul>
+      </div>
+      <div class="pp-box no">
+        <h3>❌ Preferimos evitar</h3>
+        <ul>
+          <li>Exceso de personas en la sala</li>
+          <li>Comentarios que generen ansiedad</li>
+          <li>Interrupciones innecesarias durante el trabajo de parto</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pp-section">
+    <h2>💊 Manejo del dolor y movilidad</h2>
+    <div class="pp-grid">
+      <div class="pp-box si">
+        <h3>✅ Queremos</h3>
+        <ul>
+          <li>Acceso a pelota de parto, ducha y posiciones libres en la fase inicial</li>
+          <li><strong>Epidural de baja concentración / epidural móvil</strong> — que permita sentir algo y mover las piernas</li>
+          <li>Información antes de poner la epidural sobre tipo y dosis</li>
+          <li>Poder cambiar de posición incluso con epidural</li>
+        </ul>
+      </div>
+      <div class="pp-box no">
+        <h3>❌ Preferimos evitar</h3>
+        <ul>
+          <li>Epidural de dosis alta que impida sentir o mover los pies</li>
+          <li>Inmovilización innecesaria en cama</li>
+        </ul>
+      </div>
+    </div>
+    <div class="pp-note">
+      <strong>Nota importante sobre la epidural:</strong> Luli está dispuesta a la epidural pero necesita poder moverse mínimamente y no perder la sensación en los pies. Pedimos específicamente la opción de <strong>epidural de baja dosis o epidural ambulatoria</strong> si el hospital la ofrece. Si solo hay epidural estándar, queremos que se nos explique antes de decidir.
+    </div>
+  </div>
+
+  <div class="pp-section">
+    <h2>🔄 Durante el trabajo de parto</h2>
+    <div class="pp-grid">
+      <div class="pp-box si">
+        <h3>✅ Queremos</h3>
+        <ul>
+          <li>Progreso natural del parto en la medida de lo posible</li>
+          <li>Monitorización fetal intermitente si todo va bien</li>
+          <li>Informarnos de la evolución regularmente</li>
+          <li>Acceso a agua y líquidos durante el trabajo de parto</li>
+        </ul>
+      </div>
+      <div class="pp-box dis">
+        <h3>⚠️ Consultar antes</h3>
+        <ul>
+          <li>Oxitocina para acelerar el parto — solo si es médicamente necesario</li>
+          <li>Rotura artificial de bolsa — explicar motivo antes</li>
+          <li>Vía venosa preventiva — entendemos que puede ser necesaria</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pp-section">
+    <h2>👶 Fase expulsiva (empujar)</h2>
+    <div class="pp-grid">
+      <div class="pp-box si">
+        <h3>✅ Queremos</h3>
+        <ul>
+          <li>Pujos espontáneos cuando Luli sienta el deseo, sin conteos dirigidos si es posible</li>
+          <li>Posición semiincorporada o lateral si es posible</li>
+          <li>Masaje perineal o compresas calientes para reducir desgarros</li>
+          <li>Tiempo suficiente — sin prisa innecesaria</li>
+        </ul>
+      </div>
+      <div class="pp-box no">
+        <h3>❌ Preferimos evitar</h3>
+        <ul>
+          <li>Episiotomía rutinaria — solo si hay riesgo real de desgarro grave</li>
+          <li>Maniobra de Kristeller (presión sobre el abdomen)</li>
+          <li>Fórceps o ventosa salvo emergencia</li>
+          <li>Cesárea salvo que sea médicamente necesaria</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pp-section">
+    <h2>❤️ Nacimiento y postparto inmediato</h2>
+    <div class="pp-grid">
+      <div class="pp-box si">
+        <h3>✅ Queremos</h3>
+        <ul>
+          <li><strong>Pinzamiento tardío del cordón</strong> — mínimo 1-3 minutos</li>
+          <li><strong>Hernán corta el cordón</strong></li>
+          <li><strong>Piel con piel inmediato</strong> entre Floro y Luli — mínimo 1 hora sin interrupciones</li>
+          <li>Primera toma al pecho en sala de partos</li>
+          <li>Alumbramiento (placenta) natural si es posible</li>
+          <li>Vitamina K para Floro (inyectable)</li>
+          <li>Profilaxis ocular neonatal</li>
+          <li>Peso, talla y pruebas neonatales después del piel con piel</li>
+        </ul>
+      </div>
+      <div class="pp-box no">
+        <h3>❌ Preferimos evitar</h3>
+        <ul>
+          <li>Separar a Floro de Luli salvo emergencia médica</li>
+          <li>Biberón de fórmula sin consultarnos primero</li>
+          <li>Chupete en las primeras horas</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pp-section">
+    <h2>⚡ Si fuera necesaria una cesárea</h2>
+    <div class="pp-grid">
+      <div class="pp-box dis">
+        <h3>En ese caso pedimos</h3>
+        <ul>
+          <li>Que se nos explique el motivo con claridad antes de proceder</li>
+          <li>Hernán presente en quirófano</li>
+          <li>Pantalla bajada para ver el nacimiento si es posible (cesárea familiar)</li>
+          <li>Piel con piel en quirófano si el estado de ambos lo permite</li>
+          <li>Pinzamiento tardío del cordón igualmente</li>
+          <li>Música en quirófano si es posible</li>
+        </ul>
+      </div>
+      <div class="pp-box no">
+        <h3>❌ Preferimos evitar</h3>
+        <ul>
+          <li>Sedación general salvo emergencia absoluta</li>
+          <li>Separación de Floro sin razón médica</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pp-section">
+    <h2>🍼 En planta — lactancia y postparto</h2>
+    <div class="pp-grid">
+      <div class="pp-box si">
+        <h3>✅ Queremos</h3>
+        <ul>
+          <li>Habitación conjunta (rooming-in) — Floro con nosotros</li>
+          <li>Apoyo de matrona o asesora de lactancia para las primeras tomas</li>
+          <li>Lactancia materna exclusiva — consultar antes de dar fórmula</li>
+          <li>Hernán puede quedarse a pernoctar si el hospital lo permite</li>
+        </ul>
+      </div>
+      <div class="pp-box no">
+        <h3>❌ Preferimos evitar</h3>
+        <ul>
+          <li>Suplementación con fórmula sin consenso</li>
+          <li>Separar a Floro para pruebas no urgentes sin aviso</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="pp-note" style="margin-top:24px">
+    Gracias por leer nuestro plan de parto. Sabemos que el objetivo compartido es que Luli y Floro estén bien y seguros. Confiamos plenamente en el equipo y pedimos solo que, cuando sea posible, se nos involucre en las decisiones.
+    <br><br>
+    <strong>Hernán y Luli ❤️</strong>
+  </div>
+
+</div><!-- /tab-parto -->
+
+<button class="print-btn" onclick="window.print()">🖨️ Imprimir / PDF</button>
+
+<script>
+const DB = 'floro_';
+
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+function toggle(checkEl) {
+  const li = checkEl.closest('li');
+  const key = li.dataset.key;
+  const name = li.querySelector('strong') ? li.querySelector('strong').textContent : 'Item';
+
+  checkEl.classList.toggle('done');
+  const isDone = checkEl.classList.contains('done');
+  li.classList.toggle('tachado', isDone);
+  localStorage.setItem(DB + key, isDone ? '1' : '0');
+
+  if (isDone) {
+    addToYa(key, name);
+  } else {
+    removeFromYa(key);
+  }
+  refreshYa();
+}
+
+function addToYa(key, name) {
+  if (document.querySelector('#ya-list [data-key="' + key + '"]')) return;
+  const d = document.createElement('div');
+  d.className = 'ya-item';
+  d.dataset.key = key;
+  d.innerHTML = '<span class="ya-tick">✓</span><span class="ya-name" title="' + name + '">' + name + '</span><span class="ya-undo" onclick="undoYa(\'' + key + '\')" title="Desmarcar">×</span>';
+  document.getElementById('ya-list').appendChild(d);
+}
+
+function removeFromYa(key) {
+  const el = document.querySelector('#ya-list [data-key="' + key + '"]');
+  if (el) el.remove();
+}
+
+function undoYa(key) {
+  const li = document.querySelector('.items li[data-key="' + key + '"]');
+  if (li) {
+    const check = li.querySelector('.check');
+    check.classList.remove('done');
+    li.classList.remove('tachado');
+    localStorage.setItem(DB + key, '0');
+  }
+  removeFromYa(key);
+  refreshYa();
+}
+
+function refreshYa() {
+  const count = document.getElementById('ya-list').children.length;
+  const section = document.getElementById('ya-section');
+  const badge = document.getElementById('ya-count');
+  section.style.display = count > 0 ? 'block' : 'none';
+  badge.textContent = count;
+}
+
+let yaOpen = true;
+function toggleYaSection() {
+  yaOpen = !yaOpen;
+  document.getElementById('ya-body').style.display = yaOpen ? '' : 'none';
+  document.getElementById('ya-arrow').classList.toggle('open', !yaOpen);
+}
+
+// Restore on load
+document.querySelectorAll('.items li[data-key]').forEach(li => {
+  const key = li.dataset.key;
+  if (localStorage.getItem(DB + key) === '1') {
+    const check = li.querySelector('.check');
+    check.classList.add('done');
+    li.classList.add('tachado');
+    const name = li.querySelector('strong') ? li.querySelector('strong').textContent : 'Item';
+    addToYa(key, name);
+  }
+});
+refreshYa();
+</script>
+
+</body>
+</html>
