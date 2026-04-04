@@ -78,7 +78,22 @@
   .print-btn { position: fixed; bottom: 24px; right: 24px; background: #c17d3c; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
   .print-btn:hover { background: #a8682f; }
   @media print { .tabs, .print-btn { display: none; } .content { display: block !important; } }
+
+  /* ── THREE.JS TABS ── */
+  .tabs { flex-wrap: wrap; }
+  .content.three-tab { padding: 0; max-width: 100%; }
+  .canvas-wrap { position: relative; width: 100%; height: calc(100vh - 122px); background: #000; overflow: hidden; }
+  .canvas-wrap canvas { display: block; width: 100% !important; height: 100% !important; }
+  .scene-hint { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.45); font-size: 12px; pointer-events: none; white-space: nowrap; }
+  .countdown-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; color: #fff; pointer-events: none; z-index: 10; }
+  .countdown-overlay .big-num { font-size: 80px; font-weight: 800; line-height: 1; font-family: 'Courier New', monospace; text-shadow: 0 0 30px #ff88bb; }
+  .countdown-overlay .cd-unit { font-size: 20px; color: #ffaacc; margin-top: 6px; }
+  .countdown-overlay .cd-sub { font-size: 14px; color: #cc99bb; margin-top: 4px; }
+  .countdown-overlay .cd-date { margin-top: 20px; font-size: 15px; color: #ffbb66; }
 </style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}
+</script>
 </head>
 <body>
 
@@ -90,6 +105,10 @@
 <div class="tabs">
   <div class="tab active" onclick="switchTab('compras', this)">🛒 Plan de compras</div>
   <div class="tab" onclick="switchTab('parto', this)">🏥 Plan de parto</div>
+  <div class="tab" onclick="switchTab('estrellas', this)">🌌 Mapa estelar</div>
+  <div class="tab" onclick="switchTab('galaxia', this)">🪐 Galaxia</div>
+  <div class="tab" onclick="switchTab('cuarto', this)">🛏️ Cuarto 3D</div>
+  <div class="tab" onclick="switchTab('cuenta', this)">⏳ Cuenta regresiva</div>
 </div>
 
 <!-- ═══════════════════════════════ TAB COMPRAS ═══════════════════════════════ -->
@@ -723,16 +742,56 @@
 
 </div><!-- /tab-parto -->
 
+<!-- ═══════════════════════ TAB MAPA ESTELAR ═══════════════════════ -->
+<div id="tab-estrellas" class="content three-tab">
+  <div class="canvas-wrap">
+    <canvas id="canvas-estrellas"></canvas>
+    <div class="scene-hint">Arrastrá para girar · Constelación FLORO en dorado</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ TAB GALAXIA ═══════════════════════ -->
+<div id="tab-galaxia" class="content three-tab">
+  <div class="canvas-wrap">
+    <canvas id="canvas-galaxia"></canvas>
+    <div class="scene-hint">Semanas 30–39 en órbita · Cada planeta = una tarea</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ TAB CUARTO 3D ═══════════════════════ -->
+<div id="tab-cuarto" class="content three-tab">
+  <div class="canvas-wrap">
+    <canvas id="canvas-cuarto"></canvas>
+    <div class="scene-hint">El cuarto de Floro · Arrastrá para explorar</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ TAB CUENTA REGRESIVA ═══════════════════════ -->
+<div id="tab-cuenta" class="content three-tab">
+  <div class="canvas-wrap">
+    <canvas id="canvas-cuenta"></canvas>
+    <div class="countdown-overlay">
+      <div id="cd-days" class="big-num">–</div>
+      <div id="cd-unit" class="cd-unit">días</div>
+      <div id="cd-sub" class="cd-sub">horas · minutos</div>
+      <div class="cd-date">📅 13 de junio de 2026</div>
+    </div>
+    <div class="scene-hint">Nebulosa de Floro · Cuenta regresiva al nacimiento</div>
+  </div>
+</div>
+
 <button class="print-btn" onclick="window.print()">🖨️ Imprimir / PDF</button>
 
 <script>
 const DB = 'floro_';
 
+const THREE_TABS = ['estrellas','galaxia','cuarto','cuenta'];
 function switchTab(name, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   el.classList.add('active');
+  if (THREE_TABS.includes(name) && window._init3D) window._init3D(name);
 }
 
 function toggle(checkEl) {
@@ -806,6 +865,425 @@ document.querySelectorAll('.items li[data-key]').forEach(li => {
   }
 });
 refreshYa();
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const STATE = {};
+let activeScene = null;
+
+function stopActive() {
+  if (activeScene && STATE[activeScene]?.raf) {
+    cancelAnimationFrame(STATE[activeScene].raf);
+    STATE[activeScene].raf = null;
+  }
+}
+
+function resumeScene(name) {
+  activeScene = name;
+  const s = STATE[name];
+  if (!s) return;
+  function loop() {
+    s.raf = requestAnimationFrame(loop);
+    s.controls?.update();
+    s.update?.();
+    s.renderer.render(s.scene, s.camera);
+  }
+  loop();
+}
+
+function makeRenderer(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight || canvas.parentElement.clientHeight;
+    renderer.setSize(w, h, false);
+    const s = STATE[activeScene];
+    if (s?.camera) { s.camera.aspect = w / h; s.camera.updateProjectionMatrix(); }
+  }
+  window.addEventListener('resize', resize);
+  setTimeout(resize, 0);
+  return renderer;
+}
+
+// ─── 🌌 MAPA ESTELAR ──────────────────────────────────────────────────
+function initEstrellas() {
+  const s = STATE.estrellas = {};
+  s.renderer = makeRenderer('canvas-estrellas');
+  s.scene = new THREE.Scene();
+  s.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 2000);
+  s.camera.position.set(0, 0, 0.1);
+
+  s.controls = new OrbitControls(s.camera, s.renderer.domElement);
+  s.controls.enableDamping = true;
+  s.controls.dampingFactor = 0.04;
+  s.controls.enablePan = false;
+  s.controls.enableZoom = false;
+  s.controls.autoRotate = true;
+  s.controls.autoRotateSpeed = 0.25;
+
+  // Field of stars
+  const N = 4000;
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    const th = Math.random() * Math.PI * 2;
+    const ph = Math.acos(2 * Math.random() - 1);
+    const r = 850 + Math.random() * 100;
+    pos[i*3]   = r * Math.sin(ph) * Math.cos(th);
+    pos[i*3+1] = r * Math.sin(ph) * Math.sin(th);
+    pos[i*3+2] = r * Math.cos(ph);
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  s.scene.add(new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffffff, size: 2, sizeAttenuation: false })));
+
+  // Bright accent stars
+  const brightPos = new Float32Array(60 * 3);
+  for (let i = 0; i < 60; i++) {
+    const th = Math.random() * Math.PI * 2;
+    const ph = Math.acos(2 * Math.random() - 1);
+    const r = 860;
+    brightPos[i*3]   = r * Math.sin(ph) * Math.cos(th);
+    brightPos[i*3+1] = r * Math.sin(ph) * Math.sin(th);
+    brightPos[i*3+2] = r * Math.cos(ph);
+  }
+  const bGeo = new THREE.BufferGeometry();
+  bGeo.setAttribute('position', new THREE.BufferAttribute(brightPos, 3));
+  s.scene.add(new THREE.Points(bGeo, new THREE.PointsMaterial({ color: 0xaaddff, size: 4, sizeAttenuation: false })));
+
+  // FLORO constellation — 6 stars in a rough F shape, golden
+  const floroRaw = [
+    [-50, 80, -800], [-20, 80, -800], [10, 80, -800],   // top bar of F
+    [-50, 50, -800], [-20, 50, -800],                    // middle bar
+    [-50, 10, -800],                                     // bottom
+  ];
+  const fPos = new Float32Array(floroRaw.flat());
+  const fGeo = new THREE.BufferGeometry();
+  fGeo.setAttribute('position', new THREE.BufferAttribute(fPos, 3));
+  s.scene.add(new THREE.Points(fGeo, new THREE.PointsMaterial({ color: 0xffd700, size: 7, sizeAttenuation: false })));
+
+  // Connect FLORO stars with lines
+  const lineIdx = [0,1, 1,2, 0,3, 3,4, 3,5];
+  const lPos = new Float32Array(lineIdx.length * 3);
+  lineIdx.forEach((vi, i) => {
+    lPos[i*3]   = floroRaw[vi][0];
+    lPos[i*3+1] = floroRaw[vi][1];
+    lPos[i*3+2] = floroRaw[vi][2];
+  });
+  const lGeo = new THREE.BufferGeometry();
+  lGeo.setAttribute('position', new THREE.BufferAttribute(lPos, 3));
+  s.scene.add(new THREE.LineSegments(lGeo, new THREE.LineBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.5 })));
+
+  // Nebula cloud (colored points cluster)
+  const nbN = 1200;
+  const nbPos = new Float32Array(nbN * 3);
+  const nbCol = new Float32Array(nbN * 3);
+  for (let i = 0; i < nbN; i++) {
+    const th = Math.random() * Math.PI * 2;
+    const ph = Math.acos(2 * Math.random() - 1);
+    const r = 820 + Math.random() * 40;
+    nbPos[i*3]   = r * Math.sin(ph) * Math.cos(th);
+    nbPos[i*3+1] = r * Math.sin(ph) * Math.sin(th);
+    nbPos[i*3+2] = r * Math.cos(ph);
+    const t = Math.random();
+    nbCol[i*3] = 0.3 + t * 0.4; nbCol[i*3+1] = 0.1 + t * 0.2; nbCol[i*3+2] = 0.5 + t * 0.5;
+  }
+  const nbGeo = new THREE.BufferGeometry();
+  nbGeo.setAttribute('position', new THREE.BufferAttribute(nbPos, 3));
+  nbGeo.setAttribute('color', new THREE.BufferAttribute(nbCol, 3));
+  s.scene.add(new THREE.Points(nbGeo, new THREE.PointsMaterial({ size: 1.5, vertexColors: true, sizeAttenuation: false, transparent: true, opacity: 0.5 })));
+
+  s.update = () => {};
+  resumeScene('estrellas');
+}
+
+// ─── 🪐 GALAXIA DE TAREAS ──────────────────────────────────────────────
+function initGalaxia() {
+  const s = STATE.galaxia = {};
+  s.renderer = makeRenderer('canvas-galaxia');
+  s.scene = new THREE.Scene();
+  s.scene.background = new THREE.Color(0x000814);
+  s.camera = new THREE.PerspectiveCamera(55, 1, 0.1, 1000);
+  s.camera.position.set(0, 50, 100);
+
+  s.controls = new OrbitControls(s.camera, s.renderer.domElement);
+  s.controls.enableDamping = true;
+  s.controls.dampingFactor = 0.05;
+  s.controls.autoRotate = true;
+  s.controls.autoRotateSpeed = 0.3;
+  s.controls.maxPolarAngle = Math.PI * 0.75;
+  s.controls.target.set(0, 0, 0);
+
+  // Stars backdrop
+  const sgeo = new THREE.BufferGeometry();
+  const spos = new Float32Array(1500 * 3);
+  for (let i = 0; i < 1500; i++) {
+    spos[i*3] = (Math.random()-0.5)*800;
+    spos[i*3+1] = (Math.random()-0.5)*800;
+    spos[i*3+2] = (Math.random()-0.5)*800;
+  }
+  sgeo.setAttribute('position', new THREE.BufferAttribute(spos, 3));
+  s.scene.add(new THREE.Points(sgeo, new THREE.PointsMaterial({ color: 0xffffff, size: 1, sizeAttenuation: false })));
+
+  // Central sun
+  const sun = new THREE.Mesh(new THREE.SphereGeometry(5, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffcc33 }));
+  s.scene.add(sun);
+  // Glow
+  const glow = new THREE.Mesh(new THREE.SphereGeometry(7.5, 32, 32), new THREE.MeshBasicMaterial({ color: 0xff8800, transparent: true, opacity: 0.18 }));
+  s.scene.add(glow);
+
+  // Orbit rings + planets (weeks 30-39)
+  const weeks = ['S30','S31','S32','S33','S34','S35','S36','S37','S38','S39'];
+  const radii = [14,19,24,29,34,39,44,49,54,59];
+  const planetCounts = [3,4,3,4,3,4,3,4,3,3]; // tasks per week
+  s.planets = [];
+
+  weeks.forEach((wk, i) => {
+    const r = radii[i];
+    // Orbit ring
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(r, 0.15, 8, 100),
+      new THREE.MeshBasicMaterial({ color: 0x1a3366, transparent: true, opacity: 0.7 })
+    );
+    ring.rotation.x = Math.PI / 2;
+    s.scene.add(ring);
+
+    // Planets
+    const count = planetCounts[i];
+    for (let j = 0; j < count; j++) {
+      const angle = (j / count) * Math.PI * 2;
+      const pGeo = new THREE.SphereGeometry(1.0, 12, 12);
+      const isDone = false;
+      const pMat = new THREE.MeshBasicMaterial({ color: isDone ? 0xffd700 : 0x2255aa });
+      const planet = new THREE.Mesh(pGeo, pMat);
+      planet.userData = { r, speed: 0.12 + i * 0.008 + j * 0.015, angle };
+      s.planets.push(planet);
+      s.scene.add(planet);
+
+      // Small moon on a few planets
+      if (j === 0 && i % 3 === 0) {
+        const moon = new THREE.Mesh(new THREE.SphereGeometry(0.35, 8, 8), new THREE.MeshBasicMaterial({ color: 0x88aadd }));
+        moon.userData.isMoon = true;
+        moon.userData.parent = planet;
+        moon.userData.moonAngle = 0;
+        s.planets.push(moon);
+        s.scene.add(moon);
+      }
+    }
+  });
+
+  s.clock = new THREE.Clock();
+  s.update = () => {
+    const t = s.clock.getElapsedTime();
+    s.planets.forEach(p => {
+      if (p.userData.isMoon) {
+        const par = p.userData.parent;
+        p.userData.moonAngle += 0.03;
+        p.position.set(par.position.x + Math.cos(p.userData.moonAngle) * 2.2, 0, par.position.z + Math.sin(p.userData.moonAngle) * 2.2);
+      } else {
+        const a = p.userData.angle + t * p.userData.speed * 0.25;
+        p.position.set(Math.cos(a) * p.userData.r, 0, Math.sin(a) * p.userData.r);
+      }
+    });
+    // Sun pulse
+    const pulse = 1 + Math.sin(t * 2) * 0.04;
+    sun.scale.setScalar(pulse);
+    glow.scale.setScalar(pulse);
+  };
+  resumeScene('galaxia');
+}
+
+// ─── 🛏️ CUARTO 3D ──────────────────────────────────────────────────────
+function initCuarto() {
+  const s = STATE.cuarto = {};
+  s.renderer = makeRenderer('canvas-cuarto');
+  s.renderer.shadowMap.enabled = true;
+  s.scene = new THREE.Scene();
+  s.scene.background = new THREE.Color(0xfff6ee);
+  s.scene.fog = new THREE.Fog(0xfff6ee, 25, 80);
+  s.camera = new THREE.PerspectiveCamera(52, 1, 0.1, 200);
+  s.camera.position.set(12, 9, 15);
+
+  s.controls = new OrbitControls(s.camera, s.renderer.domElement);
+  s.controls.enableDamping = true;
+  s.controls.target.set(0, 2, 0);
+  s.controls.maxPolarAngle = Math.PI * 0.55;
+  s.controls.minDistance = 8;
+  s.controls.maxDistance = 35;
+
+  // Lights
+  s.scene.add(new THREE.AmbientLight(0xfff0e0, 0.75));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.8);
+  sun.position.set(10, 20, 10);
+  sun.castShadow = true;
+  s.scene.add(sun);
+  // Warm fill
+  const fill = new THREE.PointLight(0xff9944, 0.5, 30);
+  fill.position.set(-5, 6, 5);
+  s.scene.add(fill);
+
+  // Floor
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(22, 22), new THREE.MeshLambertMaterial({ color: 0xdec89a }));
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  s.scene.add(floor);
+
+  // Room walls (box interior)
+  const wallMat = new THREE.MeshLambertMaterial({ color: 0xfce8d8, side: THREE.BackSide });
+  const room = new THREE.Mesh(new THREE.BoxGeometry(22, 14, 22), wallMat);
+  room.position.y = 7;
+  s.scene.add(room);
+
+  // Window (glowing rectangle on wall)
+  const win = new THREE.Mesh(new THREE.PlaneGeometry(3.5, 4), new THREE.MeshBasicMaterial({ color: 0xffffcc, transparent: true, opacity: 0.55 }));
+  win.position.set(-10.95, 6, 0);
+  win.rotation.y = Math.PI / 2;
+  s.scene.add(win);
+
+  // Rug
+  const rug = new THREE.Mesh(new THREE.PlaneGeometry(8, 6), new THREE.MeshLambertMaterial({ color: 0xe8a070 }));
+  rug.rotation.x = -Math.PI / 2;
+  rug.position.y = 0.01;
+  s.scene.add(rug);
+
+  // Furniture definitions
+  const items = [
+    { color: 0xc8a87a, pos: [-5, 0, -5], w: 3.2, h: 1.4, d: 2.2, delay: 400 },   // Cuna
+    { color: 0xa07850, pos: [4.5, 0, -6], w: 2.5, h: 3, d: 1.5, delay: 900 },    // Cambiador
+    { color: 0x7a5c2e, pos: [-8, 0, 2], w: 2, h: 6, d: 1.5, delay: 1400 },       // Armario
+    { color: 0xb8866a, pos: [5, 0, 3.5], w: 1.8, h: 2.2, d: 1.8, delay: 1900 },  // Mecedora
+    { color: 0xd4a040, pos: [0, 0, -8], w: 0.4, h: 4.5, d: 0.4, delay: 2400 },   // Lámpara
+    { color: 0xcc8844, pos: [-3, 0, 4], w: 2.5, h: 1.5, d: 1.2, delay: 2900 },   // Cajones
+  ];
+
+  s.meshes = items.map(f => {
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(f.w, f.h, f.d),
+      new THREE.MeshLambertMaterial({ color: f.color })
+    );
+    mesh.castShadow = true;
+    mesh.userData.targetY = f.h / 2;
+    mesh.userData.targetScale = 1;
+    mesh.scale.setScalar(0.001);
+    mesh.position.set(f.pos[0], f.h / 2, f.pos[2]);
+    s.scene.add(mesh);
+    setTimeout(() => { mesh.userData.growing = true; }, f.delay);
+    return mesh;
+  });
+
+  s.update = () => {
+    s.meshes.forEach(m => {
+      if (!m.userData.growing) return;
+      const cs = m.scale.x;
+      if (cs < 0.999) {
+        const ns = cs + (1 - cs) * 0.07;
+        m.scale.setScalar(ns);
+      } else {
+        m.scale.setScalar(1);
+      }
+    });
+  };
+  resumeScene('cuarto');
+}
+
+// ─── ⏳ CUENTA REGRESIVA ────────────────────────────────────────────────
+function initCuenta() {
+  const s = STATE.cuenta = {};
+  s.renderer = makeRenderer('canvas-cuenta');
+  s.scene = new THREE.Scene();
+  s.scene.background = new THREE.Color(0x020008);
+  s.camera = new THREE.PerspectiveCamera(70, 1, 0.1, 1000);
+  s.camera.position.z = 35;
+
+  s.controls = new OrbitControls(s.camera, s.renderer.domElement);
+  s.controls.enableDamping = true;
+  s.controls.enableZoom = false;
+  s.controls.autoRotate = true;
+  s.controls.autoRotateSpeed = 0.2;
+
+  // Background stars
+  const sgeo = new THREE.BufferGeometry();
+  const sp = new Float32Array(2000 * 3);
+  for (let i = 0; i < 2000; i++) {
+    sp[i*3] = (Math.random()-0.5)*500; sp[i*3+1] = (Math.random()-0.5)*500; sp[i*3+2] = (Math.random()-0.5)*500;
+  }
+  sgeo.setAttribute('position', new THREE.BufferAttribute(sp, 3));
+  s.scene.add(new THREE.Points(sgeo, new THREE.PointsMaterial({ color: 0xffffff, size: 1, sizeAttenuation: false })));
+
+  // Nebula — heart-shaped cloud
+  const N = 7000;
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(N * 3);
+  const col = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    // Distribute in rough sphere with some stretching
+    const th = Math.random() * Math.PI * 2;
+    const ph = Math.acos(2 * Math.random() - 1);
+    const r = 8 + Math.pow(Math.random(), 0.5) * 16;
+    pos[i*3]   = r * Math.sin(ph) * Math.cos(th);
+    pos[i*3+1] = r * Math.sin(ph) * Math.sin(th) * 0.65;
+    pos[i*3+2] = r * Math.cos(ph);
+    // Pink-magenta-purple palette
+    const t = Math.random();
+    col[i*3]   = 0.7 + t * 0.3;
+    col[i*3+1] = 0.15 + t * 0.25;
+    col[i*3+2] = 0.55 + t * 0.45;
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  s.nebula = new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.22, vertexColors: true, transparent: true, opacity: 0.9 }));
+  s.scene.add(s.nebula);
+
+  // Inner bright core
+  const coreGeo = new THREE.BufferGeometry();
+  const cp = new Float32Array(800 * 3);
+  for (let i = 0; i < 800; i++) {
+    cp[i*3] = (Math.random()-0.5)*8; cp[i*3+1] = (Math.random()-0.5)*8; cp[i*3+2] = (Math.random()-0.5)*8;
+  }
+  coreGeo.setAttribute('position', new THREE.BufferAttribute(cp, 3));
+  s.scene.add(new THREE.Points(coreGeo, new THREE.PointsMaterial({ color: 0xff99cc, size: 0.35, transparent: true, opacity: 0.7 })));
+
+  // Countdown update
+  function updateCd() {
+    const due = new Date('2026-06-13T00:00:00+02:00');
+    const now = new Date();
+    const diff = due - now;
+    if (diff <= 0) {
+      document.getElementById('cd-days').textContent = '¡Bienvenido Floro!';
+      document.getElementById('cd-unit').textContent = '';
+      document.getElementById('cd-sub').textContent = '';
+      return;
+    }
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    document.getElementById('cd-days').textContent = days;
+    document.getElementById('cd-unit').textContent = days === 1 ? 'día' : 'días';
+    document.getElementById('cd-sub').textContent = `${hours}h ${String(mins).padStart(2,'0')}m restantes`;
+  }
+  updateCd();
+  s.cdInterval = setInterval(updateCd, 30000);
+
+  s.clock = new THREE.Clock();
+  s.update = () => {
+    const t = s.clock.getElapsedTime();
+    const pulse = 1 + Math.sin(t * 1.1) * 0.07;
+    s.nebula.scale.setScalar(pulse);
+    s.nebula.material.opacity = 0.75 + Math.sin(t * 1.1) * 0.15;
+  };
+  resumeScene('cuenta');
+}
+
+// Expose init handler to regular script
+const initFns = { estrellas: initEstrellas, galaxia: initGalaxia, cuarto: initCuarto, cuenta: initCuenta };
+window._init3D = function(name) {
+  stopActive();
+  if (!STATE[name]) initFns[name]?.();
+  else resumeScene(name);
+};
 </script>
 
 </body>
