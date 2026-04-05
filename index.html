@@ -157,7 +157,7 @@
     <ul class="items">
       <li data-key="sillon-lactancia"><div class="check" onclick="toggle(this)"></div><div>
         <strong>Sillón de lactancia para Luli</strong> <span class="tag tag-luli">Luli</span>
-        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=sillon+lactancia+glider+amamantar" target="_blank">Amazon</a> · <a class="lnk" href="https://www.amazon.es/s?k=stokke+home+nurser" target="_blank">Stokke Home Nurser</a> · <a class="lnk" href="https://www.elcorteingles.es/bebe/search/?s=sillon+lactancia" target="_blank">El Corte Inglés</a></div>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=sillon+lactancia+glider+amamantar" target="_blank">Amazon</a> · <a class="lnk" href="https://www.amazon.es/s?k=stokke+flexibath+soporte+recien+nacido" target="_blank">Stokke Home Nurser</a> · <a class="lnk" href="https://www.elcorteingles.es/bebe/search/?s=sillon+lactancia" target="_blank">El Corte Inglés</a></div>
       </div></li>
       <li data-key="comoda-cambiador"><div class="check" onclick="toggle(this)"></div><div>
         <strong>Cómoda/cajonera para ropa de Floro</strong>
@@ -254,15 +254,15 @@
     <ul class="items">
       <li data-key="bodies-50"><div class="check" onclick="toggle(this)"></div><div>
         <strong>Bodies manga corta talla 50/56 ×6</strong>
-        <div class="note"><a class="lnk" href="https://www2.hm.com/es_es/ninos/bebe/ropa/bodies.html" target="_blank">H&amp;M</a> · <a class="lnk" href="https://www.zara.com/es/es/kids-baby-girl-l728.html" target="_blank">Zara Baby</a> · <a class="lnk" href="https://www.amazon.es/s?k=bodies+manga+corta+recien+nacido+50+56" target="_blank">Amazon</a></div>
+        <div class="note"><a class="lnk" href="https://www.hm.com/es_es/ninos/bebe/ropa/bodies.html" target="_blank">H&amp;M</a> · <a class="lnk" href="https://www.zara.com/es/es/kids-baby-girl-l728.html" target="_blank">Zara Baby</a> · <a class="lnk" href="https://www.amazon.es/s?k=bodies+manga+corta+recien+nacido+50+56" target="_blank">Amazon</a></div>
       </div></li>
       <li data-key="pijamas-50"><div class="check" onclick="toggle(this)"></div><div>
         <strong>Pijamas cremallera talla 50/56 ×6</strong>
-        <div class="note">Cremallera, no botones — son un infierno de noche · <a class="lnk" href="https://www.amazon.es/s?k=pijamas+cremallera+recien+nacido+bebe" target="_blank">Amazon</a> · <a class="lnk" href="https://www.babymori.com/es/collections/sleepsuits" target="_blank">Mori</a></div>
+        <div class="note">Cremallera, no botones — son un infierno de noche · <a class="lnk" href="https://www.amazon.es/s?k=pijamas+cremallera+recien+nacido+bebe" target="_blank">Amazon</a> · <a class="lnk" href="https://www.babymori.com/collections/sleepsuits" target="_blank">Mori</a></div>
       </div></li>
       <li data-key="gorritos-manoplas"><div class="check" onclick="toggle(this)"></div><div>
         <strong>Gorritos + manoplas ×3 sets</strong>
-        <div class="note"><a class="lnk" href="https://www2.hm.com/es_es/ninos/bebe/ropa/accesorios.html" target="_blank">H&amp;M</a> · <a class="lnk" href="https://www.amazon.es/s?k=gorro+manoplas+recien+nacido" target="_blank">Amazon</a></div>
+        <div class="note"><a class="lnk" href="https://www.hm.com/es_es/ninos/bebe/ropa/accesorios.html" target="_blank">H&amp;M</a> · <a class="lnk" href="https://www.amazon.es/s?k=gorro+manoplas+recien+nacido" target="_blank">Amazon</a></div>
       </div></li>
       <li data-key="calcetines-bebe"><div class="check" onclick="toggle(this)"></div><div>
         <strong>Calcetines ×5 pares</strong>
@@ -270,7 +270,7 @@
       </div></li>
       <li data-key="body-salida"><div class="check" onclick="toggle(this)"></div><div>
         <strong>Body + pijama especial para la salida del hospital</strong>
-        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=conjunto+salida+hospital+recien+nacido" target="_blank">Amazon</a> · <a class="lnk" href="https://www.babymori.com/es" target="_blank">Mori</a></div>
+        <div class="note"><a class="lnk" href="https://www.amazon.es/s?k=conjunto+salida+hospital+recien+nacido" target="_blank">Amazon</a> · <a class="lnk" href="https://www.babymori.com" target="_blank">Mori</a></div>
       </div></li>
       <li data-key="muselinas"><div class="check" onclick="toggle(this)"></div><div>
         <strong>Muselinas ×6</strong>
@@ -890,7 +890,6 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 const DB = 'floro_';
 const STATE = {};
 let activeScene = null;
-
 function isDone(key) { return localStorage.getItem(DB + key) === '1'; }
 
 function stopActive() {
@@ -899,538 +898,562 @@ function stopActive() {
     STATE[activeScene].raf = null;
   }
 }
-
 function resumeScene(name) {
   activeScene = name;
   const s = STATE[name];
   if (!s) return;
-  (function loop() {
-    s.raf = requestAnimationFrame(loop);
-    s.controls?.update();
-    s.update?.();
-    s.renderer.render(s.scene, s.camera);
-  })();
+  (function loop() { s.raf = requestAnimationFrame(loop); s.controls?.update(); s.update?.(); s.renderer.render(s.scene, s.camera); })();
 }
-
 function makeRenderer(canvasId) {
   const canvas = document.getElementById(canvasId);
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
   function resize() {
     const w = canvas.clientWidth || canvas.parentElement.clientWidth;
     const h = canvas.clientHeight || canvas.parentElement.clientHeight;
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     const s = STATE[activeScene];
-    if (s?.camera) { s.camera.aspect = w / h; s.camera.updateProjectionMatrix(); }
+    if (s?.camera) { s.camera.aspect = w/h; s.camera.updateProjectionMatrix(); }
   }
   window.addEventListener('resize', resize);
   setTimeout(resize, 50);
   return renderer;
 }
 
-// ── Wrap toggle() to update 3D scenes in real-time ─────────────────────
+// ── Wrap toggle to update 3D ────────────────────────────────────────────
 const _origToggle = window.toggle;
 window.toggle = function(checkEl) {
   _origToggle.call(this, checkEl);
   const li = checkEl.closest('li');
   if (!li) return;
-  const key = li.dataset.key;
-  const done = checkEl.classList.contains('done');
+  const key = li.dataset.key, done = checkEl.classList.contains('done');
   STATE.cuarto?.updateItem?.(key, done);
   STATE.galaxia?.updatePlanet?.(key, done);
   STATE.estrellas?.updateStar?.(key, done);
 };
 
-// ─── 🌌 MAPA ESTELAR ─────────────────────────────────────────────────────
-// Tasks grouped into named constellations
+// ─── 🌌 MAPA ESTELAR — Sky of Madrid, June 13 2026 ────────────────────
+// 6 named constellations visible in Madrid on the night Floro is born
 const CONSTELLATIONS = [
-  { name: 'Cuarto de Floro', keys: ['sillon-lactancia','comoda-cambiador','cambiador-sebra','lampara-nursery','alfombra-cuarto','raskog-ikea','colchon-cuna','humidificador','tacho-panales','banera-stokke'] },
-  { name: 'Ropa de Floro',   keys: ['bodies-50','pijamas-50','gorritos-manoplas','calcetines-bebe','body-salida','muselinas','baberos-tela','capa-bano','saco-verano','mantas-finas','lavar-ropa'] },
-  { name: 'Salud y cuidado', keys: ['termometro-agua','termometro-oido','gel-suave','crema-hidratante','esponja-bebe','bepanthen','frida-nose','suero-gasas','lima-zoli','frida-ice'] },
-  { name: 'Para Luli',       keys: ['sujetadores-lactancia','braguitas-postparto','compresas-postparto','cojin-donut','zapatillas-hospital'] },
-  { name: 'Bolso hospital',  keys: ['panales-stock','waterwipes-stock','biberones','chupetes','panales-bolso','waterwipes-bolso','snacks-parto','cargador-auriculares','bolso-terminado'] },
-  { name: 'Logística',       keys: ['plan-parto-arrancar','asesora-ibclc','confirmar-feli','huevito-coche','ruta-hospital','huckleberry','repaso-nursery','bolso-cambiador','cargar-coche'] },
-];
-const CON_CENTERS = [
-  { th: 0.4,  ph: 1.1 },
-  { th: 1.9,  ph: 0.85 },
-  { th: 3.4,  ph: 1.25 },
-  { th: 4.9,  ph: 0.7 },
-  { th: 2.4,  ph: 0.5 },
-  { th: 5.7,  ph: 1.05 },
+  { name: 'Cuarto de Floro', desc:'La Virgo protege el nido', center:{th:0.5,ph:1.15},
+    keys:['sillon-lactancia','comoda-cambiador','cambiador-sebra','lampara-nursery','alfombra-cuarto','raskog-ikea','colchon-cuna','humidificador','tacho-panales','banera-stokke'] },
+  { name: 'Ropa de Floro',   desc:'La Osa Mayor lo viste',   center:{th:2.0,ph:0.8},
+    keys:['bodies-50','pijamas-50','gorritos-manoplas','calcetines-bebe','body-salida','muselinas','baberos-tela','capa-bano','saco-verano','mantas-finas','lavar-ropa'] },
+  { name: 'Salud',           desc:'Vega cuida su salud',     center:{th:3.5,ph:1.2},
+    keys:['termometro-agua','termometro-oido','gel-suave','crema-hidratante','esponja-bebe','bepanthen','frida-nose','suero-gasas','lima-zoli','frida-ice'] },
+  { name: 'Para Luli',       desc:'Leo protege a mamá',      center:{th:4.9,ph:0.65},
+    keys:['sujetadores-lactancia','braguitas-postparto','compresas-postparto','cojin-donut','zapatillas-hospital'] },
+  { name: 'Bolso hospital',  desc:'El Cisne vuela al hospital', center:{th:2.5,ph:0.45},
+    keys:['panales-stock','waterwipes-stock','biberones','chupetes','panales-bolso','waterwipes-bolso','snacks-parto','cargador-auriculares','bolso-terminado'] },
+  { name: 'Logística',       desc:'Boötes guía el camino',   center:{th:5.8,ph:1.0},
+    keys:['plan-parto-arrancar','asesora-ibclc','confirmar-feli','huevito-coche','ruta-hospital','huckleberry','repaso-nursery','bolso-cambiador','cargar-coche'] },
 ];
 
 function initEstrellas() {
   const s = STATE.estrellas = {};
   s.renderer = makeRenderer('canvas-estrellas');
+  s.renderer.toneMapping = THREE.NoToneMapping; // stars look better without tone mapping
   s.scene = new THREE.Scene();
   s.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 2000);
   s.camera.position.set(0, 0, 0.1);
   s.controls = new OrbitControls(s.camera, s.renderer.domElement);
-  s.controls.enableDamping = true;
-  s.controls.dampingFactor = 0.05;
-  s.controls.enablePan = false;
-  s.controls.enableZoom = false;
-  s.controls.autoRotate = true;
-  s.controls.autoRotateSpeed = 0.2;
+  s.controls.enableDamping = true; s.controls.dampingFactor = 0.05;
+  s.controls.enablePan = false; s.controls.enableZoom = false;
+  s.controls.autoRotate = true; s.controls.autoRotateSpeed = 0.12;
+
+  // Glow sprite texture factory
+  function makeGlowTex(r, g, b, sz=64) {
+    const c = document.createElement('canvas'); c.width = c.height = sz;
+    const ctx = c.getContext('2d');
+    const gr = ctx.createRadialGradient(sz/2,sz/2,0, sz/2,sz/2,sz/2);
+    gr.addColorStop(0,   `rgba(${r},${g},${b},1)`);
+    gr.addColorStop(0.35,`rgba(${r},${g},${b},0.65)`);
+    gr.addColorStop(0.7, `rgba(${r},${g},${b},0.1)`);
+    gr.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+    ctx.fillStyle = gr; ctx.fillRect(0,0,sz,sz);
+    return new THREE.CanvasTexture(c);
+  }
+  const texDone  = makeGlowTex(255,210,50);
+  const texPend  = makeGlowTex(70,110,200);
+  const texFloro = makeGlowTex(255,240,80, 96);
 
   // Background star field
-  const N = 3000;
-  const bg = new THREE.BufferGeometry();
-  const bp = new Float32Array(N * 3);
-  for (let i = 0; i < N; i++) {
-    const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1), r = 850 + Math.random() * 100;
-    bp[i*3] = r*Math.sin(ph)*Math.cos(th); bp[i*3+1] = r*Math.sin(ph)*Math.sin(th); bp[i*3+2] = r*Math.cos(ph);
-  }
-  bg.setAttribute('position', new THREE.BufferAttribute(bp, 3));
-  s.scene.add(new THREE.Points(bg, new THREE.PointsMaterial({ color: 0xffffff, size: 1.5, sizeAttenuation: false, transparent: true, opacity: 0.55 })));
+  const N=3000, bg=new THREE.BufferGeometry(), bp=new Float32Array(N*3);
+  for(let i=0;i<N;i++){const th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1),r=870+Math.random()*80;bp[i*3]=r*Math.sin(ph)*Math.cos(th);bp[i*3+1]=r*Math.sin(ph)*Math.sin(th);bp[i*3+2]=r*Math.cos(ph);}
+  bg.setAttribute('position',new THREE.BufferAttribute(bp,3));
+  s.scene.add(new THREE.Points(bg,new THREE.PointsMaterial({color:0xffffff,size:1.2,sizeAttenuation:false,transparent:true,opacity:0.45})));
 
-  // Nebula tint
-  const nb = new THREE.BufferGeometry();
-  const np = new Float32Array(800*3), nc = new Float32Array(800*3);
-  for (let i = 0; i < 800; i++) {
-    const th = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1), r = 825+Math.random()*35;
-    np[i*3]=r*Math.sin(ph)*Math.cos(th); np[i*3+1]=r*Math.sin(ph)*Math.sin(th); np[i*3+2]=r*Math.cos(ph);
-    nc[i*3]=0.2+Math.random()*0.25; nc[i*3+1]=0.05; nc[i*3+2]=0.4+Math.random()*0.4;
-  }
-  nb.setAttribute('position', new THREE.BufferAttribute(np, 3));
-  nb.setAttribute('color', new THREE.BufferAttribute(nc, 3));
-  s.scene.add(new THREE.Points(nb, new THREE.PointsMaterial({ size: 1.2, vertexColors: true, sizeAttenuation: false, transparent: true, opacity: 0.4 })));
+  // Subtle nebula tint
+  const nb=new THREE.BufferGeometry(), np=new Float32Array(900*3), nc=new Float32Array(900*3);
+  for(let i=0;i<900;i++){const th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1),r=845+Math.random()*25;np[i*3]=r*Math.sin(ph)*Math.cos(th);np[i*3+1]=r*Math.sin(ph)*Math.sin(th);np[i*3+2]=r*Math.cos(ph);nc[i*3]=0.1+Math.random()*0.15;nc[i*3+1]=0.05;nc[i*3+2]=0.3+Math.random()*0.3;}
+  nb.setAttribute('position',new THREE.BufferAttribute(np,3)); nb.setAttribute('color',new THREE.BufferAttribute(nc,3));
+  s.scene.add(new THREE.Points(nb,new THREE.PointsMaterial({size:1.5,vertexColors:true,sizeAttenuation:false,transparent:true,opacity:0.45})));
 
-  // Constellation stars (one per task)
-  s.starMeshes = {};
-  s.allStarObjs = [];
+  // Constellation stars as glowing sprites + connecting lines
+  s.starSprites = {}; s.allSprites = [];
+  const wrap = document.getElementById('estrellas-wrap');
+  wrap.querySelectorAll('.con-lbl').forEach(el=>el.remove());
+  s.labelEls = [];
+
   CONSTELLATIONS.forEach((con, ci) => {
-    const center = CON_CENTERS[ci];
-    const positions = [];
+    const {th: cth, ph: cph} = con.center;
+    const pts = [];
     con.keys.forEach((key, ki) => {
-      const dth = center.th + (ki % 4 - 1.5) * 0.18 + Math.sin(ki * 2.1) * 0.12;
-      const dph = center.ph + Math.floor(ki/4) * 0.18 - 0.15 + Math.cos(ki * 1.9) * 0.09;
-      const r = 840;
-      const x = r*Math.sin(dph)*Math.cos(dth), y = r*Math.sin(dph)*Math.sin(dth), z = r*Math.cos(dph);
-      const done = isDone(key);
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([x,y,z]), 3));
-      const mat = new THREE.PointsMaterial({ color: done ? 0xffd700 : 0x3a5577, size: done ? 6 : 3, sizeAttenuation: false });
-      const star = new THREE.Points(geo, mat);
-      star.userData = { key, conName: con.name };
-      s.scene.add(star);
-      s.starMeshes[key] = star;
-      s.allStarObjs.push(star);
-      positions.push([x,y,z]);
+      const dth = cth + (ki%4-1.5)*0.2 + Math.sin(ki*2.1)*0.12;
+      const dph = cph + Math.floor(ki/4)*0.2 - 0.12 + Math.cos(ki*1.9)*0.09;
+      const r=845, x=r*Math.sin(dph)*Math.cos(dth), y=r*Math.sin(dph)*Math.sin(dth), z=r*Math.cos(dph);
+      const done=isDone(key);
+      const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:done?texDone:texPend,transparent:true,depthTest:false}));
+      spr.position.set(x,y,z); spr.scale.set(done?30:16,done?30:16,1);
+      spr.userData={key,conName:con.name}; s.scene.add(spr);
+      s.starSprites[key]=spr; s.allSprites.push(spr); pts.push([x,y,z]);
     });
-    // Connect with lines
-    if (positions.length >= 2) {
-      const lp = [];
-      for (let i = 0; i < positions.length-1; i++) lp.push(...positions[i], ...positions[i+1]);
-      const lg = new THREE.BufferGeometry();
-      lg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(lp), 3));
-      s.scene.add(new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ color: 0x1a3366, transparent: true, opacity: 0.35 })));
+    // Connecting lines
+    if (pts.length>=2) {
+      const lp=[]; for(let i=0;i<pts.length-1;i++) lp.push(...pts[i],...pts[i+1]);
+      const lg=new THREE.BufferGeometry(); lg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(lp),3));
+      s.scene.add(new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:0x2244aa,transparent:true,opacity:0.45})));
     }
+    // HTML label at centroid of constellation (projected each frame)
+    const avg=pts.reduce((a,p)=>[a[0]+p[0]/pts.length,a[1]+p[1]/pts.length,a[2]+p[2]/pts.length],[0,0,0]);
+    const len=Math.sqrt(avg[0]**2+avg[1]**2+avg[2]**2);
+    const lv=new THREE.Vector3(avg[0]/len*825,avg[1]/len*825-12,avg[2]/len*825);
+    const el=document.createElement('div');
+    el.className='con-lbl';
+    el.style.cssText='position:absolute;pointer-events:none;font-size:10px;font-weight:700;color:#6688bb;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;text-shadow:0 0 8px rgba(60,120,255,.6);';
+    el.textContent=con.name;
+    wrap.appendChild(el);
+    s.labelEls.push({el, lv});
   });
 
-  // FLORO golden constellation
-  const fr = [[-50,80,-820],[-20,80,-820],[10,80,-820],[-50,52,-820],[-20,52,-820],[-50,15,-820]];
-  const fg = new THREE.BufferGeometry();
-  fg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(fr.flat()), 3));
-  s.floroStars = new THREE.Points(fg, new THREE.PointsMaterial({ color: 0xffd700, size: 7, sizeAttenuation: false }));
-  s.scene.add(s.floroStars);
-  const li = [0,1,1,2,0,3,3,4,3,5];
-  const lp2 = new Float32Array(li.length*3);
-  li.forEach((vi,i)=>{lp2[i*3]=fr[vi][0];lp2[i*3+1]=fr[vi][1];lp2[i*3+2]=fr[vi][2];});
-  const lg2 = new THREE.BufferGeometry();
-  lg2.setAttribute('position', new THREE.BufferAttribute(lp2, 3));
-  s.scene.add(new THREE.LineSegments(lg2, new THREE.LineBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.55 })));
-
-  // Hover tooltip
-  const raycaster = new THREE.Raycaster();
-  raycaster.params.Points = { threshold: 7 };
-  const mouse = new THREE.Vector2();
-  const tooltip = document.getElementById('estrellas-tooltip');
-  s.renderer.domElement.addEventListener('mousemove', e => {
-    const rect = s.renderer.domElement.getBoundingClientRect();
-    mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
-    mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
-    raycaster.setFromCamera(mouse, s.camera);
-    const hits = raycaster.intersectObjects(s.allStarObjs);
-    if (hits.length > 0 && tooltip) {
-      const { key, conName } = hits[0].object.userData;
-      const done = isDone(key);
-      const liEl = document.querySelector(`.items li[data-key="${key}"]`);
-      const label = liEl?.querySelector('strong')?.textContent || key;
-      tooltip.innerHTML = `<span style="color:${done?'#ffd700':'#88aacc'}">${done?'★':'☆'}</span> <b>${label}</b><br><small style="opacity:.65">${conName}</small>`;
-      tooltip.style.left = (e.clientX-rect.left+14)+'px';
-      tooltip.style.top = (e.clientY-rect.top-52)+'px';
-      tooltip.style.display = 'block';
-    } else if (tooltip) tooltip.style.display = 'none';
+  // FLORO constellation — 6 golden stars in an F shape
+  const fr=[[-52,82,-835],[-22,82,-835],[10,82,-835],[-52,53,-835],[-22,53,-835],[-52,17,-835]];
+  fr.forEach(p=>{
+    const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:texFloro,transparent:true,depthTest:false}));
+    spr.position.set(...p); spr.scale.set(44,44,1); s.scene.add(spr);
   });
-  s.renderer.domElement.addEventListener('mouseleave', () => { if(tooltip) tooltip.style.display='none'; });
+  const floroIdx=[0,1,1,2,0,3,3,4,3,5];
+  const flp=new Float32Array(floroIdx.length*3);
+  floroIdx.forEach((vi,i)=>{flp[i*3]=fr[vi][0];flp[i*3+1]=fr[vi][1];flp[i*3+2]=fr[vi][2];});
+  const flg=new THREE.BufferGeometry(); flg.setAttribute('position',new THREE.BufferAttribute(flp,3));
+  s.scene.add(new THREE.LineSegments(flg,new THREE.LineBasicMaterial({color:0xffd700,transparent:true,opacity:0.7})));
+  // FLORO label
+  const floroEl=document.createElement('div');
+  floroEl.className='con-lbl';
+  floroEl.style.cssText='position:absolute;pointer-events:none;font-size:12px;font-weight:800;color:#ffd700;letter-spacing:.2em;white-space:nowrap;text-shadow:0 0 12px rgba(255,200,0,.9),0 0 30px rgba(255,150,0,.4);';
+  floroEl.textContent='✦ FLORO ✦';
+  wrap.appendChild(floroEl);
+  const favg=fr.reduce((a,p)=>[a[0]+p[0]/fr.length,a[1]+p[1]/fr.length,a[2]+p[2]/fr.length],[0,0,0]);
+  const flen=Math.sqrt(favg[0]**2+favg[1]**2+favg[2]**2);
+  s.labelEls.push({el:floroEl, lv:new THREE.Vector3(favg[0]/flen*815,favg[1]/flen*815-16,favg[2]/flen*815)});
 
-  s.clock = new THREE.Clock();
-  s.update = () => { s.floroStars.material.size = 7 + Math.sin(s.clock.getElapsedTime()*1.5)*1.2; };
-  s.updateStar = (key, done) => {
-    const st = s.starMeshes[key];
-    if (!st) return;
-    st.material.color.setHex(done ? 0xffd700 : 0x3a5577);
-    st.material.size = done ? 6 : 3;
+  // Hover tooltip via projected distance
+  const tooltip=document.getElementById('estrellas-tooltip');
+  s.renderer.domElement.addEventListener('mousemove', e=>{
+    const rect=s.renderer.domElement.getBoundingClientRect();
+    const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    let closest=null, minD=30;
+    s.allSprites.forEach(spr=>{
+      const v=spr.position.clone().project(s.camera);
+      if(v.z>0.999) return;
+      const sx=(v.x*.5+.5)*rect.width, sy=(-v.y*.5+.5)*rect.height;
+      const d=Math.hypot(mx-sx,my-sy);
+      if(d<minD){minD=d;closest=spr;}
+    });
+    if(closest&&tooltip){
+      const {key,conName}=closest.userData, done=isDone(key);
+      const liEl=document.querySelector(`.items li[data-key="${key}"]`);
+      const label=liEl?.querySelector('strong')?.textContent||key;
+      tooltip.innerHTML=`<span style="color:${done?'#ffd700':'#88aacc'}">${done?'★':'☆'}</span> <b>${label}</b><br><small style="opacity:.65">${conName}</small>`;
+      tooltip.style.left=(e.clientX-rect.left+14)+'px'; tooltip.style.top=(e.clientY-rect.top-52)+'px'; tooltip.style.display='block';
+    } else if(tooltip) tooltip.style.display='none';
+  });
+  s.renderer.domElement.addEventListener('mouseleave',()=>{if(tooltip)tooltip.style.display='none';});
+
+  s.clock=new THREE.Clock();
+  s.update=()=>{
+    const canvas=s.renderer.domElement, t=s.clock.getElapsedTime();
+    // Project HTML labels to screen
+    s.labelEls.forEach(({el,lv})=>{
+      const v=lv.clone().project(s.camera);
+      if(v.z>0.98){el.style.opacity='0';return;}
+      // Fade when behind camera edge
+      const fade=Math.min(1,(0.98-v.z)*50);
+      el.style.opacity=fade;
+      el.style.left=Math.round((v.x*.5+.5)*canvas.clientWidth - el.offsetWidth/2)+'px';
+      el.style.top=Math.round((-v.y*.5+.5)*canvas.clientHeight-8)+'px';
+    });
+    // FLORO sprites pulse
+    const pulse=1+Math.sin(t*1.5)*0.1;
+    s.allSprites.forEach(spr=>{
+      if(!spr.userData.key) spr.scale.set(44*pulse,44*pulse,1); // FLORO stars
+    });
+  };
+  s.updateStar=(key,done)=>{
+    const spr=s.starSprites[key]; if(!spr) return;
+    spr.material.map=done?texDone:texPend; spr.scale.set(done?30:16,done?30:16,1);
   };
   resumeScene('estrellas');
 }
 
-// ─── 🪐 GALAXIA DE TAREAS ────────────────────────────────────────────────
+// ─── 🪐 GALAXIA DE TAREAS (unchanged — it's perfect) ─────────────────────
 const WEEK_TASKS = [
-  { week:'S30', color:0x5577aa, tasks:[{key:'sillon-lactancia',label:'Sillón lactancia'},{key:'comoda-cambiador',label:'Cómoda Floro'},{key:'lampara-nursery',label:'Lámpara nursery'},{key:'alfombra-cuarto',label:'Alfombra cuarto'}] },
-  { week:'S31', color:0x7755aa, tasks:[{key:'banera-stokke',label:'Bañadera Stokke'},{key:'colchon-cuna',label:'Colchón cuna'},{key:'termometro-oido',label:'Termómetro oído'},{key:'asesora-ibclc',label:'Asesora lactancia'}] },
-  { week:'S32', color:0x558877, tasks:[{key:'bodies-50',label:'Bodies bebé ×6'},{key:'pijamas-50',label:'Pijamas ×6'},{key:'muselinas',label:'Muselinas ×6'},{key:'saco-verano',label:'Saco dormir'}] },
-  { week:'S33', color:0x557766, tasks:[{key:'lavar-ropa',label:'Lavar ropa Floro'},{key:'gel-suave',label:'Gel suave'},{key:'bepanthen',label:'Bepanthen'},{key:'frida-nose',label:'NoseFrida'}] },
-  { week:'S34', color:0x886644, tasks:[{key:'panales-stock',label:'Stock pañales'},{key:'waterwipes-stock',label:'WaterWipes stock'},{key:'humidificador',label:'Humidificador'},{key:'cesta-organizador',label:'Cesta cambiador'}] },
-  { week:'S35', color:0x997744, tasks:[{key:'sujetadores-lactancia',label:'Sujetadores Luli'},{key:'braguitas-postparto',label:'Braguitas postparto'},{key:'compresas-postparto',label:'Compresas'},{key:'cojin-donut',label:'Cojín donut'}] },
-  { week:'S36', color:0xaa6633, tasks:[{key:'biberones',label:'Biberones'},{key:'chupetes',label:'Chupetes'},{key:'bolso-cambiador',label:'Bolso cambiador'},{key:'tacho-panales',label:'Tacho pañales'}] },
-  { week:'S37', color:0xbb5522, tasks:[{key:'snacks-parto',label:'Snacks parto'},{key:'cargador-auriculares',label:'Cargadores'},{key:'zapatillas-hospital',label:'Zapatillas Luli'},{key:'panales-bolso',label:'Pañales bolso'}] },
-  { week:'S38', color:0xcc4411, tasks:[{key:'bolso-terminado',label:'Bolso hospital ✓'},{key:'huevito-coche',label:'Huevito Maxi Cosi'},{key:'ruta-hospital',label:'Ruta al hospital'},{key:'huckleberry',label:'App Huckleberry'}] },
-  { week:'S39+',color:0xff4400, tasks:[{key:'repaso-nursery',label:'Repaso nursery'},{key:'cargar-coche',label:'Cargar el coche'},{key:'descanso',label:'Descansar 🙏'},{key:'disfrutar',label:'❤️ Disfrutar'}] },
+  { week:'S30',color:0x5577aa,tasks:[{key:'sillon-lactancia',label:'Sillón lactancia'},{key:'comoda-cambiador',label:'Cómoda Floro'},{key:'lampara-nursery',label:'Lámpara nursery'},{key:'alfombra-cuarto',label:'Alfombra cuarto'}] },
+  { week:'S31',color:0x7755aa,tasks:[{key:'banera-stokke',label:'Bañadera Stokke'},{key:'colchon-cuna',label:'Colchón cuna'},{key:'termometro-oido',label:'Termómetro oído'},{key:'asesora-ibclc',label:'Asesora lactancia'}] },
+  { week:'S32',color:0x558877,tasks:[{key:'bodies-50',label:'Bodies bebé ×6'},{key:'pijamas-50',label:'Pijamas ×6'},{key:'muselinas',label:'Muselinas ×6'},{key:'saco-verano',label:'Saco dormir'}] },
+  { week:'S33',color:0x557766,tasks:[{key:'lavar-ropa',label:'Lavar ropa Floro'},{key:'gel-suave',label:'Gel suave'},{key:'bepanthen',label:'Bepanthen'},{key:'frida-nose',label:'NoseFrida'}] },
+  { week:'S34',color:0x886644,tasks:[{key:'panales-stock',label:'Stock pañales'},{key:'waterwipes-stock',label:'WaterWipes stock'},{key:'humidificador',label:'Humidificador'},{key:'cesta-organizador',label:'Cesta cambiador'}] },
+  { week:'S35',color:0x997744,tasks:[{key:'sujetadores-lactancia',label:'Sujetadores Luli'},{key:'braguitas-postparto',label:'Braguitas postparto'},{key:'compresas-postparto',label:'Compresas'},{key:'cojin-donut',label:'Cojín donut'}] },
+  { week:'S36',color:0xaa6633,tasks:[{key:'biberones',label:'Biberones'},{key:'chupetes',label:'Chupetes'},{key:'bolso-cambiador',label:'Bolso cambiador'},{key:'tacho-panales',label:'Tacho pañales'}] },
+  { week:'S37',color:0xbb5522,tasks:[{key:'snacks-parto',label:'Snacks parto'},{key:'cargador-auriculares',label:'Cargadores'},{key:'zapatillas-hospital',label:'Zapatillas Luli'},{key:'panales-bolso',label:'Pañales bolso'}] },
+  { week:'S38',color:0xcc4411,tasks:[{key:'bolso-terminado',label:'Bolso hospital ✓'},{key:'huevito-coche',label:'Huevito Maxi Cosi'},{key:'ruta-hospital',label:'Ruta al hospital'},{key:'huckleberry',label:'App Huckleberry'}] },
+  { week:'S39+',color:0xff4400,tasks:[{key:'repaso-nursery',label:'Repaso nursery'},{key:'cargar-coche',label:'Cargar el coche'},{key:'descanso',label:'Descansar 🙏'},{key:'disfrutar',label:'❤️ Disfrutar'}] },
 ];
-
 function initGalaxia() {
   const s = STATE.galaxia = {};
   s.renderer = makeRenderer('canvas-galaxia');
-  s.scene = new THREE.Scene();
-  s.scene.background = new THREE.Color(0x000814);
-  s.camera = new THREE.PerspectiveCamera(55, 1, 0.1, 1000);
-  s.camera.position.set(0, 55, 105);
+  s.renderer.toneMapping = THREE.NoToneMapping;
+  s.scene = new THREE.Scene(); s.scene.background = new THREE.Color(0x000814);
+  s.camera = new THREE.PerspectiveCamera(55, 1, 0.1, 1000); s.camera.position.set(0, 55, 105);
   s.controls = new OrbitControls(s.camera, s.renderer.domElement);
   s.controls.enableDamping = true; s.controls.dampingFactor = 0.05;
   s.controls.autoRotate = true; s.controls.autoRotateSpeed = 0.28;
   s.controls.maxPolarAngle = Math.PI*0.72;
-
-  // Star backdrop
-  const sg = new THREE.BufferGeometry(), sp = new Float32Array(1500*3);
-  for (let i=0;i<1500;i++){sp[i*3]=(Math.random()-.5)*700;sp[i*3+1]=(Math.random()-.5)*700;sp[i*3+2]=(Math.random()-.5)*700;}
-  sg.setAttribute('position', new THREE.BufferAttribute(sp, 3));
-  s.scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color:0xffffff,size:1,sizeAttenuation:false})));
-
-  // Sun
-  s.sun = new THREE.Mesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshBasicMaterial({color:0xffcc22}));
-  s.scene.add(s.sun);
-  s.scene.add(new THREE.Mesh(new THREE.SphereGeometry(7.5,16,16), new THREE.MeshBasicMaterial({color:0xff8800,transparent:true,opacity:0.15})));
-  s.scene.add(new THREE.Mesh(new THREE.SphereGeometry(10,16,16), new THREE.MeshBasicMaterial({color:0xff6600,transparent:true,opacity:0.06})));
-
-  // Rings + planets
-  const radii = [14,19,24,29,34,39,44,49,54,60];
-  s.planetMeshes = {};
-  s.planetData = [];
-  WEEK_TASKS.forEach((wk, wi) => {
-    const r = radii[wi];
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(r,0.12,6,100), new THREE.MeshBasicMaterial({color:wk.color,transparent:true,opacity:0.5}));
-    ring.rotation.x = Math.PI/2;
-    s.scene.add(ring);
-    wk.tasks.forEach((task, ti) => {
-      const angle = (ti/wk.tasks.length)*Math.PI*2;
-      const done = isDone(task.key);
-      const mesh = new THREE.Mesh(new THREE.SphereGeometry(1.1,16,16), new THREE.MeshBasicMaterial({color: done ? 0xffd700 : wk.color}));
-      mesh.position.set(Math.cos(angle)*r, 0, Math.sin(angle)*r);
-      mesh.userData = { key:task.key, label:task.label, r, speed:0.1+wi*0.006+ti*0.012, angle, week:wk.week };
-      s.scene.add(mesh);
-      s.planetMeshes[task.key] = mesh;
-      s.planetData.push(mesh);
-      if (done) {
-        mesh.add(new THREE.Mesh(new THREE.SphereGeometry(1.8,12,12), new THREE.MeshBasicMaterial({color:0xffd700,transparent:true,opacity:0.2})));
-      }
+  const sg=new THREE.BufferGeometry(),sp=new Float32Array(1500*3);
+  for(let i=0;i<1500;i++){sp[i*3]=(Math.random()-.5)*700;sp[i*3+1]=(Math.random()-.5)*700;sp[i*3+2]=(Math.random()-.5)*700;}
+  sg.setAttribute('position',new THREE.BufferAttribute(sp,3));
+  s.scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:1,sizeAttenuation:false})));
+  s.sun=new THREE.Mesh(new THREE.SphereGeometry(5,32,32),new THREE.MeshBasicMaterial({color:0xffcc22})); s.scene.add(s.sun);
+  s.scene.add(new THREE.Mesh(new THREE.SphereGeometry(7.5,16,16),new THREE.MeshBasicMaterial({color:0xff8800,transparent:true,opacity:0.15})));
+  s.scene.add(new THREE.Mesh(new THREE.SphereGeometry(10.5,16,16),new THREE.MeshBasicMaterial({color:0xff6600,transparent:true,opacity:0.06})));
+  const radii=[14,19,24,29,34,39,44,49,54,60];
+  s.planetMeshes={}; s.planetData=[];
+  WEEK_TASKS.forEach((wk,wi)=>{
+    const r=radii[wi];
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(r,0.12,6,100),new THREE.MeshBasicMaterial({color:wk.color,transparent:true,opacity:0.5}));
+    ring.rotation.x=Math.PI/2; s.scene.add(ring);
+    wk.tasks.forEach((task,ti)=>{
+      const angle=(ti/wk.tasks.length)*Math.PI*2, done=isDone(task.key);
+      const mesh=new THREE.Mesh(new THREE.SphereGeometry(1.1,16,16),new THREE.MeshBasicMaterial({color:done?0xffd700:wk.color}));
+      mesh.position.set(Math.cos(angle)*r,0,Math.sin(angle)*r);
+      mesh.userData={key:task.key,label:task.label,r,speed:0.1+wi*0.006+ti*0.012,angle,week:wk.week};
+      s.scene.add(mesh); s.planetMeshes[task.key]=mesh; s.planetData.push(mesh);
+      if(done) mesh.add(new THREE.Mesh(new THREE.SphereGeometry(1.8,12,12),new THREE.MeshBasicMaterial({color:0xffd700,transparent:true,opacity:0.2})));
     });
   });
-
-  // Raycaster — hover + click
-  const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
-  const tooltip = document.getElementById('galaxia-tooltip');
-  function getHit(e) {
-    const rect = s.renderer.domElement.getBoundingClientRect();
-    mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
-    mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
-    raycaster.setFromCamera(mouse, s.camera);
-    return raycaster.intersectObjects(s.planetData);
-  }
-  s.renderer.domElement.addEventListener('mousemove', e => {
-    const hits = getHit(e);
-    if (hits.length > 0 && tooltip) {
-      const d = hits[0].object.userData;
-      const done = isDone(d.key);
-      tooltip.innerHTML = `<b>${d.label}</b> <span style="color:${done?'#ffd700':'#667799'}">${done?'✓':'○'}</span><br><small style="opacity:.6">${d.week} · clic para ver en lista</small>`;
-      const rect = s.renderer.domElement.getBoundingClientRect();
-      tooltip.style.left = (e.clientX-rect.left+14)+'px';
-      tooltip.style.top  = (e.clientY-rect.top-52)+'px';
-      tooltip.style.display = 'block';
-      s.renderer.domElement.style.cursor = 'pointer';
-    } else {
-      if(tooltip) tooltip.style.display='none';
-      s.renderer.domElement.style.cursor='';
-    }
+  const raycaster=new THREE.Raycaster(), mouse=new THREE.Vector2();
+  const tooltip=document.getElementById('galaxia-tooltip');
+  function getHit(e){const rect=s.renderer.domElement.getBoundingClientRect();mouse.x=((e.clientX-rect.left)/rect.width)*2-1;mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;raycaster.setFromCamera(mouse,s.camera);return raycaster.intersectObjects(s.planetData);}
+  s.renderer.domElement.addEventListener('mousemove',e=>{
+    const hits=getHit(e);
+    if(hits.length>0&&tooltip){const d=hits[0].object.userData,done=isDone(d.key);tooltip.innerHTML=`<b>${d.label}</b> <span style="color:${done?'#ffd700':'#667799'}">${done?'✓':'○'}</span><br><small style="opacity:.6">${d.week} · clic para ver en lista</small>`;const rect=s.renderer.domElement.getBoundingClientRect();tooltip.style.left=(e.clientX-rect.left+14)+'px';tooltip.style.top=(e.clientY-rect.top-52)+'px';tooltip.style.display='block';s.renderer.domElement.style.cursor='pointer';}
+    else{if(tooltip)tooltip.style.display='none';s.renderer.domElement.style.cursor='';}
   });
-  s.renderer.domElement.addEventListener('click', e => {
-    const hits = getHit(e);
-    if (hits.length > 0) {
-      const key = hits[0].object.userData.key;
-      const tabEl = document.querySelector('.tab');
-      window.switchTab('compras', tabEl);
-      setTimeout(() => {
-        const liEl = document.querySelector(`.items li[data-key="${key}"]`);
-        if (liEl) liEl.scrollIntoView({behavior:'smooth',block:'center'});
-      }, 120);
-    }
+  s.renderer.domElement.addEventListener('click',e=>{
+    const hits=getHit(e);if(hits.length>0){const key=hits[0].object.userData.key;window.switchTab('compras',document.querySelector('.tab'));setTimeout(()=>{const el=document.querySelector(`.items li[data-key="${key}"]`);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},120);}
   });
-  s.renderer.domElement.addEventListener('mouseleave', () => { if(tooltip) tooltip.style.display='none'; });
-
-  s.clock = new THREE.Clock();
-  s.update = () => {
-    const t = s.clock.getElapsedTime();
-    s.planetData.forEach(m => {
-      const a = m.userData.angle + t*m.userData.speed*0.22;
-      m.position.set(Math.cos(a)*m.userData.r, 0, Math.sin(a)*m.userData.r);
-    });
-    const p = 1+Math.sin(t*2.1)*0.05;
-    s.sun.scale.setScalar(p);
-  };
-  s.updatePlanet = (key, done) => {
-    const mesh = s.planetMeshes[key];
-    if (!mesh) return;
-    const wk = WEEK_TASKS.find(w=>w.tasks.some(t=>t.key===key));
-    mesh.material.color.setHex(done ? 0xffd700 : (wk?.color||0x5577aa));
-    while(mesh.children.length) mesh.remove(mesh.children[0]);
-    if (done) mesh.add(new THREE.Mesh(new THREE.SphereGeometry(1.8,12,12),new THREE.MeshBasicMaterial({color:0xffd700,transparent:true,opacity:0.2})));
-  };
+  s.renderer.domElement.addEventListener('mouseleave',()=>{if(tooltip)tooltip.style.display='none';});
+  s.clock=new THREE.Clock();
+  s.update=()=>{const t=s.clock.getElapsedTime();s.planetData.forEach(m=>{const a=m.userData.angle+t*m.userData.speed*.22;m.position.set(Math.cos(a)*m.userData.r,0,Math.sin(a)*m.userData.r);});s.sun.scale.setScalar(1+Math.sin(t*2.1)*.05);};
+  s.updatePlanet=(key,done)=>{const mesh=s.planetMeshes[key];if(!mesh)return;const wk=WEEK_TASKS.find(w=>w.tasks.some(t=>t.key===key));mesh.material.color.setHex(done?0xffd700:(wk?.color||0x5577aa));while(mesh.children.length)mesh.remove(mesh.children[0]);if(done)mesh.add(new THREE.Mesh(new THREE.SphereGeometry(1.8,12,12),new THREE.MeshBasicMaterial({color:0xffd700,transparent:true,opacity:0.2})));};
   resumeScene('galaxia');
 }
 
-// ─── 🛏️ CUARTO 3D ──────────────────────────────────────────────────────
+// ─── 🛏️ CUARTO 3D — physically-based, proper furniture shapes ──────────
+function std(color, rough=0.78, metal=0.02) {
+  return new THREE.MeshStandardMaterial({ color, roughness:rough, metalness:metal });
+}
+function box(w,h,d,x,y,z,mat) {
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+  m.position.set(x,y,z); m.castShadow=true; m.receiveShadow=true; return m;
+}
+function cyl(rt,rb,h,x,y,z,mat,seg=20) {
+  const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mat);
+  m.position.set(x,y,z); m.castShadow=true; return m;
+}
+
 const FURNITURE = [
-  { key:'colchon-cuna',     label:'Cuna colecho',        emoji:'🛏️', color:0xd4a870, pos:[-5,0,-5], w:3.5,  h:1.4,  d:2.2 },
-  { key:'sillon-lactancia', label:'Sillón de lactancia', emoji:'🪑', color:0xb8896a, pos:[6,0,4],   w:1.9,  h:2.8,  d:1.9 },
-  { key:'comoda-cambiador', label:'Cómoda de Floro',     emoji:'🗄️',color:0xa07040, pos:[5,0,-6],  w:2.8,  h:3.2,  d:1.4 },
-  { key:'cambiador-sebra',  label:'Cambiador Sebra',     emoji:'✋', color:0xddc8a0, pos:[5,3.4,-6],w:2.8,  h:0.25, d:1.4 },
-  { key:'alfombra-cuarto',  label:'Alfombra',            emoji:'🟥', color:0xe07060, pos:[0,0.02,0],w:9,    h:0.08, d:7   },
-  { key:'lampara-nursery',  label:'Lámpara nursery',     emoji:'💡', color:0xffd040, pos:[0,6.8,0], w:1.5,  h:0.45, d:1.5 },
-  { key:'raskog-ikea',      label:'Carrito IKEA Råskog', emoji:'🛒', color:0x889aaa, pos:[7,0,-2],  w:1.1,  h:2.2,  d:0.9 },
-  { key:'humidificador',    label:'Humidificador',       emoji:'💨', color:0xaaccee, pos:[-3,0,3],  w:0.9,  h:1.8,  d:0.9 },
-  { key:'tacho-panales',    label:'Tacho de pañales',    emoji:'🗑️',color:0x99aa99, pos:[2.5,0,-7],w:0.9,  h:2.0,  d:0.9 },
-  { key:'banera-stokke',    label:'Bañadera Stokke',     emoji:'🛁', color:0x99bbcc, pos:[-6,0,3],  w:2.6,  h:1.1,  d:1.5 },
+  { key:'colchon-cuna',     label:'Cuna colecho',        emoji:'🛏️', pos:[-5,0,-5] },
+  { key:'sillon-lactancia', label:'Sillón de lactancia', emoji:'🪑', pos:[ 6,0, 4] },
+  { key:'comoda-cambiador', label:'Cómoda + Cambiador',  emoji:'🗄️',pos:[ 5,0,-6] },
+  { key:'alfombra-cuarto',  label:'Alfombra',            emoji:'🟥', pos:[ 0,0, 0] },
+  { key:'lampara-nursery',  label:'Lámpara nursery',     emoji:'💡', pos:[ 0,6.8,0] },
+  { key:'raskog-ikea',      label:'Carrito IKEA Råskog', emoji:'🛒', pos:[ 7,0,-2] },
+  { key:'humidificador',    label:'Humidificador',       emoji:'💨', pos:[-3,0, 3] },
+  { key:'tacho-panales',    label:'Tacho de pañales',    emoji:'🗑️',pos:[ 3,0,-7] },
+  { key:'banera-stokke',    label:'Bañadera Stokke',     emoji:'🛁', pos:[-6,0, 3.5] },
 ];
+
+function buildCuna() {
+  const g = new THREE.Group();
+  const wood=std(0xd4a870,0.75), pale=std(0xf0e2c4,0.85), mattress=std(0xfff8f0,0.95);
+  g.add(box(3.6,0.14,2.2, 0,-0.06,0, wood));  // base
+  [[-1.72,0.48,0],[1.72,0.48,0]].forEach(([x,y,z])=>g.add(box(0.07,1.1,2.2,x,y,z,pale)));    // end panels
+  g.add(box(3.6,1.1,0.06, 0,0.48,1.07, pale));                                                // long rail back
+  g.add(box(3.6,1.1,0.06, 0,0.48,-1.07, pale));                                               // long rail front
+  for(let i=-1.5;i<=1.5;i+=0.36){g.add(box(0.04,1.1,0.04,i,0.48,1.07,pale));g.add(box(0.04,1.1,0.04,i,0.48,-1.07,pale));} // vertical bars
+  g.add(box(3.35,0.14,2.0, 0,0.12,0, mattress)); // mattress
+  return g;
+}
+function buildSillon() {
+  const g = new THREE.Group();
+  const fab=std(0xb8896a,0.85), arm=std(0x9e7356,0.8), wood=std(0x7a5c2e,0.7), cush=std(0xd4a898,0.9);
+  [[-0.78,0.75],[0.78,0.75],[-0.78,-0.75],[0.78,-0.75]].forEach(([x,z])=>g.add(cyl(0.05,0.06,0.6,x,-0.6,z,wood))); // legs
+  g.add(box(1.9,0.42,1.85, 0,-0.19,0, fab));   // seat base
+  g.add(box(1.75,0.2,1.7,  0,0.04,0, cush));   // seat cushion
+  g.add(box(0.3,0.6,1.85,  -0.8,0.1,0, arm));  // left arm
+  g.add(box(0.3,0.6,1.85,   0.8,0.1,0, arm));  // right arm
+  g.add(box(1.9,2.2,0.36,   0,1.28,-0.75, fab));// back
+  g.add(box(1.75,2.0,0.2,   0,1.28,-0.59, cush));// back cushion
+  return g;
+}
+function buildComoda() {
+  const g = new THREE.Group();
+  const wood=std(0xa07040,0.75), front=std(0xb48840,0.7), handle=std(0xddbb55,0.25,0.5);
+  g.add(box(2.8,3.2,1.4, 0,0,0, wood));         // body
+  g.add(box(2.92,0.07,1.52, 0,1.635,0, front));  // top
+  for(let i=0;i<4;i++){const y=-1.19+i*0.76;g.add(box(2.56,0.64,0.07,0,y,0.715,front));g.add(cyl(0.04,0.04,0.45,0,y+0.1,0.77,handle));} // drawers+handles
+  // Cambiador mat on top
+  g.add(box(2.8,0.06,1.4, 0,1.7,0, std(0xe8dfc8,0.6)));
+  g.add(box(2.8,0.12,0.07, 0,1.73,0.67, std(0xe8dfc8,0.6))); // raised edge front
+  g.add(box(2.8,0.12,0.07, 0,1.73,-0.67, std(0xe8dfc8,0.6)));// raised edge back
+  return g;
+}
+function buildAlf() {
+  const g=new THREE.Group(); g.add(box(9,0.06,7, 0,0,0, std(0xe07060,0.98))); return g;
+}
+function buildLampara() {
+  const g=new THREE.Group();
+  const shade=new THREE.Mesh(new THREE.CylinderGeometry(1.55,0.72,0.58,24),std(0xfff5e8,0.9));
+  shade.castShadow=false; g.add(shade);
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(1.35,0.55,0.54,24),new THREE.MeshStandardMaterial({color:0xfff5c0,emissive:new THREE.Color(0xfff5c0),emissiveIntensity:0.6,side:THREE.BackSide})));
+  return g;
+}
+function buildRaskog() {
+  const g=new THREE.Group();
+  const metal=std(0x889aaa,0.45,0.3);
+  [0,0.82,1.64].forEach(y=>g.add(box(1.1,0.05,0.9,0,y,0,metal)));
+  [[-0.47,0.82,0.37],[0.47,0.82,0.37],[-0.47,0.82,-0.37],[0.47,0.82,-0.37]].forEach(([x,cy,z])=>g.add(cyl(0.025,0.025,1.7,x,cy,z,std(0x778899,0.4,0.4))));
+  return g;
+}
+function buildHumid() {
+  const g=new THREE.Group();
+  g.add(cyl(0.45,0.52,1.5,0,0,0,std(0xaaccee,0.35,0.1)));
+  g.add(cyl(0.3,0.45,0.26,0,0.88,0,std(0xffffff,0.3)));
+  const led=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,8),new THREE.MeshStandardMaterial({color:0xaaddff,emissive:new THREE.Color(0x88ccff),emissiveIntensity:0.8}));
+  led.position.y=1.2; g.add(led);
+  return g;
+}
+function buildTacho() {
+  const g=new THREE.Group();
+  g.add(cyl(0.43,0.49,1.8,0,0,0,std(0x99aa99,0.75)));
+  g.add(cyl(0.52,0.52,0.12,0,0.96,0,std(0x88aa88,0.6)));
+  return g;
+}
+function buildBanera() {
+  const g=new THREE.Group();
+  const tub=std(0x99bbcc,0.4,0.1);
+  g.add(box(2.6,1.1,1.5, 0,0,0, tub));       // outer
+  g.add(box(2.25,0.9,1.18, 0,0.1,0, std(0x77aabb,0.35,0.1))); // inner bowl
+  [[-0.98,-0.65,0],[0.98,-0.65,0]].forEach(([x,y,z])=>g.add(box(0.16,0.4,1.5,x,y,z,std(0x8899aa,0.55)))); // legs/stand
+  return g;
+}
+
+const FURNITURE_BUILDERS = {
+  'colchon-cuna': buildCuna, 'sillon-lactancia': buildSillon,
+  'comoda-cambiador': buildComoda, 'alfombra-cuarto': buildAlf,
+  'lampara-nursery': buildLampara, 'raskog-ikea': buildRaskog,
+  'humidificador': buildHumid, 'tacho-panales': buildTacho,
+  'banera-stokke': buildBanera,
+};
 
 function initCuarto() {
   const s = STATE.cuarto = {};
   s.renderer = makeRenderer('canvas-cuarto');
-  s.renderer.shadowMap.enabled = true;
-  s.scene = new THREE.Scene();
-  s.scene.background = new THREE.Color(0xfff6ee);
+  s.scene = new THREE.Scene(); s.scene.background = new THREE.Color(0xfff6ee);
   s.scene.fog = new THREE.Fog(0xfff6ee, 30, 80);
-  s.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
-  s.camera.position.set(14, 10, 16);
+  s.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200); s.camera.position.set(14,10,16);
   s.controls = new OrbitControls(s.camera, s.renderer.domElement);
-  s.controls.enableDamping = true;
-  s.controls.target.set(0, 2, 0);
-  s.controls.maxPolarAngle = Math.PI*0.5;
-  s.controls.minDistance = 10; s.controls.maxDistance = 38;
+  s.controls.enableDamping = true; s.controls.target.set(0,2,0);
+  s.controls.maxPolarAngle = Math.PI*0.5; s.controls.minDistance=10; s.controls.maxDistance=38;
 
   // Lights
-  s.scene.add(new THREE.AmbientLight(0xfff0e0, 0.75));
-  const sun = new THREE.DirectionalLight(0xffffff, 0.8);
-  sun.position.set(10, 20, 10); sun.castShadow = true;
+  s.scene.add(new THREE.HemisphereLight(0xfff5e8, 0xddc890, 0.55));
+  const sun=new THREE.DirectionalLight(0xfff8f0,0.85); sun.position.set(10,20,10); sun.castShadow=true; sun.shadow.mapSize.set(1024,1024); sun.shadow.camera.far=60;
   s.scene.add(sun);
-  s.fill = new THREE.PointLight(0xff9944, 0.4, 30);
-  s.fill.position.set(-5, 6, 5);
-  s.scene.add(s.fill);
+  const winLight=new THREE.SpotLight(0xfffce8, 0.6, 35, Math.PI/5, 0.3); winLight.position.set(-9,10,0); winLight.target.position.set(0,0,0); winLight.castShadow=false;
+  s.scene.add(winLight); s.scene.add(winLight.target);
+  s.fill=new THREE.PointLight(0xff9944,0.35,28); s.fill.position.set(-5,6,5); s.scene.add(s.fill);
 
-  // Floor
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(22,22), new THREE.MeshLambertMaterial({color:0xdec89a}));
-  floor.rotation.x = -Math.PI/2; floor.receiveShadow = true;
-  s.scene.add(floor);
-
+  // Floor — wood planks feel via color
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(22,22),std(0xd8b882,0.9)); floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; s.scene.add(floor);
   // Walls
-  const wallBox = new THREE.Mesh(new THREE.BoxGeometry(22,14,22), new THREE.MeshLambertMaterial({color:0xfce8d8, side:THREE.BackSide}));
-  wallBox.position.y = 7;
-  s.scene.add(wallBox);
+  const wallBox=new THREE.Mesh(new THREE.BoxGeometry(22,14,22),new THREE.MeshStandardMaterial({color:0xfde8d4,roughness:0.95,side:THREE.BackSide})); wallBox.position.y=7; s.scene.add(wallBox);
+  // Skirting board
+  const skirting=new THREE.Mesh(new THREE.BoxGeometry(22,0.18,22),new THREE.MeshStandardMaterial({color:0xe8d5b4,roughness:0.8,side:THREE.BackSide})); skirting.position.y=0.09; s.scene.add(skirting);
+  // Window frame + glow
+  const winFrame=new THREE.Mesh(new THREE.PlaneGeometry(3.8,4.6),std(0xf5ead5,0.7)); winFrame.position.set(-10.92,6,0); winFrame.rotation.y=Math.PI/2; s.scene.add(winFrame);
+  const winGlow=new THREE.Mesh(new THREE.PlaneGeometry(3.4,4.2),new THREE.MeshStandardMaterial({color:0xffffff,emissive:new THREE.Color(0xfff5e0),emissiveIntensity:0.5,transparent:true,opacity:0.6})); winGlow.position.set(-10.91,6,0); winGlow.rotation.y=Math.PI/2; s.scene.add(winGlow);
+  // Ceiling lamp cord
+  const cord=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,3,8),std(0x888880,0.7)); cord.position.set(0,8.5,0); s.scene.add(cord);
+  // Decorative star stickers on wall
+  [[0,-5,-10.9],[2,-3,-10.9],[-2,-6,-10.9],[3,-5,-10.9],[-1,-2,-10.9]].forEach(([x,y,z],i)=>{
+    const star=new THREE.Mesh(new THREE.SphereGeometry(0.06+i*0.02,8,8),new THREE.MeshStandardMaterial({color:0xffd700,emissive:new THREE.Color(0xffd700),emissiveIntensity:0.4}));
+    star.position.set(x,6+y*0.3,z); s.scene.add(star);
+  });
 
-  // Window glow
-  const win = new THREE.Mesh(new THREE.PlaneGeometry(3.5,4), new THREE.MeshBasicMaterial({color:0xffffcc,transparent:true,opacity:0.55}));
-  win.position.set(-10.95,6,0); win.rotation.y = Math.PI/2;
-  s.scene.add(win);
-
-  // Lamp cord
-  const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,3,6), new THREE.MeshLambertMaterial({color:0x888888}));
-  cord.position.set(0, 8.5, 0);
-  s.scene.add(cord);
-
-  // Furniture meshes (start invisible unless already done)
-  s.meshes = {};
+  // Furniture groups
+  s.groups = {};
+  s.hitMeshes = []; // flat list of all child meshes for raycasting
   FURNITURE.forEach(f => {
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(f.w, f.h, f.d), new THREE.MeshLambertMaterial({color:f.color}));
-    mesh.castShadow = true;
-    mesh.position.set(f.pos[0], f.h/2, f.pos[2]);
+    const builder = FURNITURE_BUILDERS[f.key];
+    const grp = builder ? builder() : new THREE.Group();
+    grp.position.set(f.pos[0], f.pos[1] + (f.key==='lampara-nursery'?0:0), f.pos[2]);
+    // y-offset: furniture built around y=0 center, need to sit on floor
+    if (f.key === 'colchon-cuna') grp.position.y = 0.07;
+    else if (f.key === 'sillon-lactancia') grp.position.y = 0.6;
+    else if (f.key === 'comoda-cambiador') grp.position.y = 1.6;
+    else if (f.key === 'raskog-ikea') grp.position.y = 0;
+    else if (f.key === 'humidificador') grp.position.y = 0.75;
+    else if (f.key === 'tacho-panales') grp.position.y = 0.9;
+    else if (f.key === 'banera-stokke') grp.position.y = 0.55;
+    else if (f.key === 'alfombra-cuarto') grp.position.y = 0.03;
+    grp.userData.furniture = f;
     const alreadyDone = isDone(f.key);
-    mesh.scale.setScalar(alreadyDone ? 1 : 0.001);
-    mesh.userData.furniture = f;
-    mesh.userData.targetScale = alreadyDone ? 1 : 0.001;
-    s.scene.add(mesh);
-    s.meshes[f.key] = mesh;
+    grp.scale.setScalar(alreadyDone ? 1 : 0.001);
+    grp.userData.targetScale = alreadyDone ? 1 : 0.001;
+    // Tag all child meshes with parent furniture info
+    grp.traverse(child=>{ if(child.isMesh){ child.userData.furniture=f; child.receiveShadow=true; s.hitMeshes.push(child); }});
+    s.scene.add(grp);
+    s.groups[f.key] = grp;
   });
 
-  // Raycaster — click shows tooltip, hover shows cursor
-  const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
-  const tooltip = document.getElementById('cuarto-tooltip');
-  function visibleMeshes() { return Object.values(s.meshes).filter(m => m.scale.x > 0.5); }
-  function getHit(e) {
-    const rect = s.renderer.domElement.getBoundingClientRect();
-    mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
-    mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
-    raycaster.setFromCamera(mouse, s.camera);
-    return raycaster.intersectObjects(visibleMeshes());
-  }
-  s.renderer.domElement.addEventListener('mousemove', e => {
-    s.renderer.domElement.style.cursor = getHit(e).length>0 ? 'pointer' : '';
-  });
-  s.renderer.domElement.addEventListener('click', e => {
-    const hits = getHit(e);
-    if (hits.length > 0 && tooltip) {
-      const f = hits[0].object.userData.furniture;
-      const done = isDone(f.key);
-      tooltip.innerHTML = `${f.emoji} <b>${f.label}</b><br><span style="color:${done?'#88ee88':'#ffaa44'}">${done?'✓ En el cuarto de Floro':'⏳ Todavía pendiente'}</span>`;
-      const wr = document.getElementById('cuarto-wrap').getBoundingClientRect();
-      let tx = e.clientX-wr.left+14, ty = e.clientY-wr.top-60;
-      if (tx+180 > wr.width) tx = e.clientX-wr.left-194;
-      tooltip.style.left = tx+'px'; tooltip.style.top = ty+'px';
-      tooltip.style.display = 'block';
-      // Flash mesh
-      const mat = hits[0].object.material;
-      mat.emissive = new THREE.Color(0x333333);
-      setTimeout(() => { mat.emissive.setHex(0); }, 600);
-      setTimeout(() => { tooltip.style.display='none'; }, 2800);
-    } else if (tooltip) {
-      tooltip.style.display = 'none';
-    }
+  // Raycaster
+  const raycaster=new THREE.Raycaster(), mouse=new THREE.Vector2();
+  const tooltip=document.getElementById('cuarto-tooltip');
+  function visibleHitMeshes(){return s.hitMeshes.filter(m=>m.parent?.scale.x>0.5);}
+  function getHit(e){const rect=s.renderer.domElement.getBoundingClientRect();mouse.x=((e.clientX-rect.left)/rect.width)*2-1;mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;raycaster.setFromCamera(mouse,s.camera);return raycaster.intersectObjects(visibleHitMeshes());}
+  s.renderer.domElement.addEventListener('mousemove',e=>{s.renderer.domElement.style.cursor=getHit(e).length>0?'pointer':'';});
+  s.renderer.domElement.addEventListener('click',e=>{
+    const hits=getHit(e);
+    if(hits.length>0&&tooltip){
+      const f=hits[0].object.userData.furniture, done=isDone(f.key);
+      tooltip.innerHTML=`${f.emoji} <b>${f.label}</b><br><span style="color:${done?'#88ee88':'#ffaa44'}">${done?'✓ Ya en el cuarto de Floro':'⏳ Todavía pendiente — tildalo en Compras'}</span>`;
+      const wr=document.getElementById('cuarto-wrap').getBoundingClientRect();
+      let tx=e.clientX-wr.left+14, ty=e.clientY-wr.top-60;
+      if(tx+200>wr.width) tx=e.clientX-wr.left-210;
+      tooltip.style.left=tx+'px'; tooltip.style.top=ty+'px'; tooltip.style.display='block';
+      const mat=hits[0].object.material;
+      const origEm=mat.emissive?.getHex()??0;
+      if(mat.emissive){mat.emissive.setHex(0x333333);setTimeout(()=>mat.emissive.setHex(origEm),600);}
+      setTimeout(()=>{tooltip.style.display='none';},3000);
+    } else if(tooltip) tooltip.style.display='none';
   });
 
   updateCuartoProgress();
 
-  s.clock = new THREE.Clock();
-  s.update = () => {
-    const t = s.clock.getElapsedTime();
-    Object.values(s.meshes).forEach(m => {
-      const ts = m.userData.targetScale, cs = m.scale.x;
-      if (Math.abs(cs-ts) > 0.002) m.scale.setScalar(cs+(ts-cs)*0.08);
-    });
-    s.fill.intensity = 0.4+Math.sin(t*0.7)*0.06;
+  s.clock=new THREE.Clock();
+  s.update=()=>{
+    const t=s.clock.getElapsedTime();
+    Object.values(s.groups).forEach(g=>{const ts=g.userData.targetScale,cs=g.scale.x;if(Math.abs(cs-ts)>0.002)g.scale.setScalar(cs+(ts-cs)*0.07);});
+    s.fill.intensity=0.35+Math.sin(t*0.65)*0.05;
   };
-  s.updateItem = (key, done) => {
-    const mesh = s.meshes[key];
-    if (!mesh) return;
-    mesh.userData.targetScale = done ? 1 : 0.001;
-    updateCuartoProgress();
+  s.updateItem=(key,done)=>{
+    const grp=s.groups[key]; if(!grp) return;
+    grp.userData.targetScale=done?1:0.001; updateCuartoProgress();
   };
   resumeScene('cuarto');
 }
 
 function updateCuartoProgress() {
-  const keys = FURNITURE.map(f=>f.key);
-  const done = keys.filter(k=>isDone(k)).length;
-  const pct = Math.round(done/keys.length*100);
-  const el = document.getElementById('cuarto-progress');
-  if (el) el.textContent = done===keys.length ? `🎉 ¡Cuarto de Floro completo!` : `${done} / ${keys.length} muebles del cuarto · ${pct}%`;
+  const keys=FURNITURE.map(f=>f.key), done=keys.filter(k=>isDone(k)).length;
+  const el=document.getElementById('cuarto-progress');
+  if(el) el.textContent=done===keys.length?'🎉 ¡Cuarto de Floro completo!':done===0?'El cuarto está vacío — tildá items en Compras':`${done} / ${keys.length} muebles en el cuarto · ${Math.round(done/keys.length*100)}%`;
 }
 
 // ─── ⏳ CUENTA REGRESIVA ────────────────────────────────────────────────
-const WEEKS_CD = [
-  {label:'S30',date:'2026-04-04',desc:'Cuarto y muebles'},
-  {label:'S31',date:'2026-04-11',desc:'Baño y sueño'},
-  {label:'S32',date:'2026-04-18',desc:'Ropa de Floro'},
-  {label:'S33',date:'2026-04-25',desc:'Lavado y prep'},
-  {label:'S34',date:'2026-05-02',desc:'Higiene'},
-  {label:'S35',date:'2026-05-09',desc:'Ropa de Luli'},
-  {label:'S36',date:'2026-05-16',desc:'Alimentación'},
-  {label:'S37',date:'2026-05-23',desc:'Bolso hospital'},
-  {label:'S38',date:'2026-05-30',desc:'Bolso listo'},
-  {label:'S39+',date:'2026-06-06',desc:'Última semana'},
-  {label:'🍼',date:'2026-06-13',desc:'¡Floro!'},
+const WEEKS_CD=[
+  {label:'S30',date:'2026-04-04'},{label:'S31',date:'2026-04-11'},{label:'S32',date:'2026-04-18'},
+  {label:'S33',date:'2026-04-25'},{label:'S34',date:'2026-05-02'},{label:'S35',date:'2026-05-09'},
+  {label:'S36',date:'2026-05-16'},{label:'S37',date:'2026-05-23'},{label:'S38',date:'2026-05-30'},
+  {label:'S39+',date:'2026-06-06'},{label:'🍼',date:'2026-06-13'},
 ];
-function getCurrentWeekIdx() {
-  const now = new Date();
-  for (let i=WEEKS_CD.length-1;i>=0;i--) { if(now>=new Date(WEEKS_CD[i].date)) return i; }
-  return 0;
-}
+function getCurrentWeekIdx(){const now=new Date();for(let i=WEEKS_CD.length-1;i>=0;i--)if(now>=new Date(WEEKS_CD[i].date))return i;return 0;}
 
 function initCuenta() {
-  const s = STATE.cuenta = {};
-  s.renderer = makeRenderer('canvas-cuenta');
-  s.scene = new THREE.Scene();
-  s.scene.background = new THREE.Color(0x020008);
-  s.camera = new THREE.PerspectiveCamera(70, 1, 0.1, 1000);
-  s.camera.position.z = 35;
-  s.controls = new OrbitControls(s.camera, s.renderer.domElement);
-  s.controls.enableDamping = true; s.controls.enableZoom = false;
-  s.controls.autoRotate = true; s.controls.autoRotateSpeed = 0.2;
+  const s=STATE.cuenta={};
+  s.renderer=makeRenderer('canvas-cuenta');
+  s.renderer.toneMapping=THREE.NoToneMapping;
+  s.scene=new THREE.Scene(); s.scene.background=new THREE.Color(0x020008);
+  s.camera=new THREE.PerspectiveCamera(70,1,0.1,1000); s.camera.position.z=35;
+  s.controls=new OrbitControls(s.camera,s.renderer.domElement);
+  s.controls.enableDamping=true; s.controls.enableZoom=false; s.controls.autoRotate=true; s.controls.autoRotateSpeed=0.18;
 
   // Stars
-  const sg=new THREE.BufferGeometry(), sp=new Float32Array(2000*3);
+  const sg=new THREE.BufferGeometry(),sp=new Float32Array(2000*3);
   for(let i=0;i<2000;i++){sp[i*3]=(Math.random()-.5)*500;sp[i*3+1]=(Math.random()-.5)*500;sp[i*3+2]=(Math.random()-.5)*500;}
-  sg.setAttribute('position',new THREE.BufferAttribute(sp,3));
-  s.scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:1,sizeAttenuation:false})));
+  sg.setAttribute('position',new THREE.BufferAttribute(sp,3)); s.scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:1,sizeAttenuation:false})));
 
-  // Nebula
-  const N=7000, geo=new THREE.BufferGeometry(), pos=new Float32Array(N*3), col=new Float32Array(N*3);
+  // Heart-shaped nebula using heart equation
+  const N=8000,geo=new THREE.BufferGeometry(),pos=new Float32Array(N*3),col=new Float32Array(N*3);
   for(let i=0;i<N;i++){
-    const th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1),r=8+Math.pow(Math.random(),.5)*16;
-    pos[i*3]=r*Math.sin(ph)*Math.cos(th); pos[i*3+1]=r*Math.sin(ph)*Math.sin(th)*.65; pos[i*3+2]=r*Math.cos(ph);
-    const t=Math.random(); col[i*3]=.7+t*.3; col[i*3+1]=.15+t*.25; col[i*3+2]=.55+t*.45;
+    // Random point in a heart: use rejection sampling in bounding box, or approximate
+    const t=Math.random()*Math.PI*2;
+    const scale=3.5+Math.random()*4.5;
+    // Heart curve: x=16sin³t, y=13cost-5cos2t-2cos3t-cos4t, scaled and randomized
+    const hx=16*Math.pow(Math.sin(t),3);
+    const hy=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+    const jitter=(Math.random()-0.5)*3;
+    const jy=(Math.random()-0.5)*3;
+    pos[i*3]  =(hx+jitter)*scale/18;
+    pos[i*3+1]=(hy+jy)*scale/18-1.5; // shift down slightly
+    pos[i*3+2]=(Math.random()-0.5)*8;
+    const tc=Math.random();
+    col[i*3]=0.75+tc*0.25; col[i*3+1]=0.12+tc*0.22; col[i*3+2]=0.5+tc*0.5;
   }
   geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
   geo.setAttribute('color',new THREE.BufferAttribute(col,3));
-  s.nebula=new THREE.Points(geo,new THREE.PointsMaterial({size:.22,vertexColors:true,transparent:true,opacity:.9}));
+  s.nebula=new THREE.Points(geo,new THREE.PointsMaterial({size:0.2,vertexColors:true,transparent:true,opacity:0.92}));
   s.scene.add(s.nebula);
-
-  // Inner bright core
-  const cg=new THREE.BufferGeometry(),cp=new Float32Array(800*3);
-  for(let i=0;i<800;i++){cp[i*3]=(Math.random()-.5)*8;cp[i*3+1]=(Math.random()-.5)*8;cp[i*3+2]=(Math.random()-.5)*8;}
+  // Bright core
+  const cg=new THREE.BufferGeometry(),cp=new Float32Array(600*3);
+  for(let i=0;i<600;i++){const t=Math.random()*Math.PI*2;const r=Math.random()*3;cp[i*3]=Math.cos(t)*r;cp[i*3+1]=Math.sin(t)*r;cp[i*3+2]=(Math.random()-.5)*3;}
   cg.setAttribute('position',new THREE.BufferAttribute(cp,3));
-  s.scene.add(new THREE.Points(cg,new THREE.PointsMaterial({color:0xff99cc,size:.35,transparent:true,opacity:.7})));
+  s.scene.add(new THREE.Points(cg,new THREE.PointsMaterial({color:0xff99cc,size:0.3,transparent:true,opacity:0.75})));
 
-  // Countdown text
-  function updateCd() {
-    const due=new Date('2026-06-13T00:00:00+02:00'), now=new Date(), diff=due-now;
-    if(diff<=0){
-      document.getElementById('cd-days').textContent='0';
-      document.getElementById('cd-unit').textContent='¡Bienvenido, Floro!';
-      document.getElementById('cd-sub').textContent=''; return;
-    }
-    const days=Math.floor(diff/86400000), hours=Math.floor((diff%86400000)/3600000), mins=Math.floor((diff%3600000)/60000);
+  // Countdown
+  function getWeekOfPregnancy(){const due=new Date('2026-06-13T00:00:00+02:00'),now=new Date(),daysLeft=Math.max(0,(due-now)/86400000);return Math.round(40-daysLeft/7);}
+  function updateCd(){
+    const due=new Date('2026-06-13T00:00:00+02:00'),now=new Date(),diff=due-now;
+    if(diff<=0){document.getElementById('cd-days').textContent='0';document.getElementById('cd-unit').textContent='¡Bienvenido, Floro!';document.getElementById('cd-sub').textContent='';return;}
+    const days=Math.floor(diff/86400000),hours=Math.floor((diff%86400000)/3600000),mins=Math.floor((diff%3600000)/60000);
     document.getElementById('cd-days').textContent=days;
     document.getElementById('cd-unit').textContent=days===1?'día':'días';
-    document.getElementById('cd-sub').textContent=`${hours}h ${String(mins).padStart(2,'0')}m`;
+    document.getElementById('cd-sub').textContent=`${hours}h ${String(mins).padStart(2,'0')}m · Semana ${getWeekOfPregnancy()} de embarazo`;
   }
   updateCd(); s.cdInterval=setInterval(updateCd,30000);
 
-  // Week timeline dots
-  const cw=getCurrentWeekIdx();
-  const tl=document.getElementById('cd-timeline');
-  if(tl) tl.innerHTML=WEEKS_CD.map((w,i)=>`<div class="cd-dot${i<cw?' past':''}${i===cw?' current':''}" title="${w.label}: ${w.desc}"></div>`).join('');
+  // Week timeline
+  const cw=getCurrentWeekIdx(), tl=document.getElementById('cd-timeline');
+  if(tl) tl.innerHTML=WEEKS_CD.map((w,i)=>`<div class="cd-dot${i<cw?' past':''}${i===cw?' current':''}" title="${w.label}"></div>`).join('');
 
   s.clock=new THREE.Clock();
   s.update=()=>{
-    const t=s.clock.getElapsedTime(), p=1+Math.sin(t*1.1)*.07;
+    const t=s.clock.getElapsedTime(), p=1+Math.sin(t*1.1)*0.07;
     s.nebula.scale.setScalar(p);
-    s.nebula.material.opacity=.75+Math.sin(t*1.1)*.15;
+    s.nebula.material.opacity=0.78+Math.sin(t*1.1)*0.14;
   };
   resumeScene('cuenta');
 }
 
 // ─── Expose to regular script ─────────────────────────────────────────
-const initFns = { estrellas:initEstrellas, galaxia:initGalaxia, cuarto:initCuarto, cuenta:initCuenta };
-window._init3D = function(name) {
-  stopActive();
-  if (!STATE[name]) initFns[name]?.();
-  else resumeScene(name);
-};
-
-// Init cuarto progress on load even before tab is opened
+const initFns={estrellas:initEstrellas,galaxia:initGalaxia,cuarto:initCuarto,cuenta:initCuenta};
+window._init3D=function(name){stopActive();if(!STATE[name])initFns[name]?.();else resumeScene(name);};
 updateCuartoProgress();
 </script>
 
