@@ -822,10 +822,60 @@ function toggle(checkEl) {
 
   if (isDone) {
     addToYa(key, name);
+    celebrate(checkEl);
   } else {
     removeFromYa(key);
   }
   refreshYa();
+}
+
+function celebrate(el) {
+  const rect = el.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const colors = ['#ffd700','#ff8fab','#a0c4ff','#caffbf','#ffb347','#c9b1ff','#fdffb6','#ffc8dd'];
+  const EMOJIS = ['\u{1F37C}','\u{1F476}','\u2B50','\u{1F31F}','\u{1F49B}','\u2728','\u{1F380}','\u{1F499}'];
+  for (let i = 0; i < 28; i++) {
+    const p = document.createElement('div');
+    const color = colors[i % colors.length];
+    const size = 5 + Math.random() * 7;
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 55 + Math.random() * 110;
+    const vx = Math.cos(angle) * speed;
+    const vy = Math.sin(angle) * speed - 90;
+    const startRot = Math.random() * 360;
+    const rotSpeed = (Math.random() - 0.5) * 720;
+    const isCircle = Math.random() > 0.45;
+    p.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;width:${size}px;height:${isCircle?size:size*0.5}px;background:${color};border-radius:${isCircle?'50%':'2px'};pointer-events:none;z-index:9999;will-change:transform,opacity;`;
+    document.body.appendChild(p);
+    const t0 = performance.now();
+    const dur = 650 + Math.random() * 400;
+    (function frame(now) {
+      const t = (now - t0) / 1000;
+      const frac = (now - t0) / dur;
+      if (frac >= 1) { p.remove(); return; }
+      const x = vx * t;
+      const y = vy * t + 0.5 * 340 * t * t;
+      p.style.transform = `translate(${x}px,${y}px) rotate(${startRot + rotSpeed * t}deg)`;
+      p.style.opacity = Math.max(0, 1 - frac * frac);
+      requestAnimationFrame(frame);
+    })(t0);
+  }
+  const emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+  const e = document.createElement('div');
+  e.textContent = emoji;
+  e.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;font-size:28px;pointer-events:none;z-index:9999;transform:translate(-50%,-50%) scale(0.4);opacity:0;transition:transform .3s cubic-bezier(.17,.67,.34,1.5),opacity .2s;`;
+  document.body.appendChild(e);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    e.style.transform = 'translate(-50%,-50%) scale(1.4)';
+    e.style.opacity = '1';
+  }));
+  setTimeout(() => {
+    e.style.transition = 'transform .45s ease-in,opacity .45s ease-in';
+    e.style.transform = `translate(calc(-50% + ${(Math.random()-0.5)*36}px),calc(-50% - 65px)) scale(0.7)`;
+    e.style.opacity = '0';
+    setTimeout(() => e.remove(), 470);
+  }, 350);
 }
 
 function addToYa(key, name) {
